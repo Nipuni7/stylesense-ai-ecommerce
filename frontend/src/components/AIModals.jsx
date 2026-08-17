@@ -1,29 +1,35 @@
 import React, { useState } from 'react';
-import { Bot, Camera, Shirt, X, Upload, Sparkles, Send, CheckCircle2 } from 'lucide-react';
+import { Bot, Camera, Shirt, X, Upload, Sparkles, Send, CheckCircle2, Loader2 } from 'lucide-react';
 
 export function AIStylistDrawer({ isOpen, onClose }) {
   const [messages, setMessages] = useState([
     { sender: 'ai', text: "Hello! I'm your StyleSense AI fashion advisor. Looking for outfit ideas for a wedding, party, or casual weekend?" }
   ]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSend = (e) => {
+  const handleSend = async (e) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || loading) return;
 
     const userMsg = input;
     setMessages(prev => [...prev, { sender: 'user', text: userMsg }]);
     setInput('');
+    setLoading(true);
 
-    setTimeout(() => {
-      setMessages(prev => [
-        ...prev, 
-        { 
-          sender: 'ai', 
-          text: `Based on your request "${userMsg}", I recommend pairing a Minimalist Linen Tailored Blazer with Monochrome Utility Cargo Pants for a balanced, modern aesthetic!` 
-        }
-      ]);
-    }, 800);
+    try {
+      const response = await fetch('http://localhost:8000/api/ai/recommend-outfit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: userMsg })
+      });
+      const data = await response.json();
+      setMessages(prev => [...prev, { sender: 'ai', text: data.advice }]);
+    } catch (err) {
+      setMessages(prev => [...prev, { sender: 'ai', text: "Style advisory: Pair minimal neutral tones with oversized silhouettes for a trendsetting look." }]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -53,6 +59,13 @@ export function AIStylistDrawer({ isOpen, onClose }) {
               </div>
             </div>
           ))}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="bg-slate-800 text-indigo-400 text-xs px-4 py-2 rounded-2xl flex items-center gap-2">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" /> Thinking...
+              </div>
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSend} className="relative mt-2">
@@ -136,11 +149,31 @@ export function SizePredictorModal({ isOpen, onClose }) {
   const [weight, setWeight] = useState(68);
   const [fit, setFit] = useState('Regular');
   const [predictedSize, setPredictedSize] = useState('M');
+  const [confidence, setConfidence] = useState(97.4);
+  const [loading, setLoading] = useState(false);
 
-  const handlePredict = () => {
-    if (weight > 78 || height > 185) setPredictedSize('L');
-    else if (weight < 58 || height < 165) setPredictedSize('S');
-    else setPredictedSize('M');
+  const handlePredict = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/ai/predict-size', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          height: Number(height),
+          weight: Number(weight),
+          fit_preference: fit
+        })
+      });
+      const data = await response.json();
+      setPredictedSize(data.recommended_size);
+      setConfidence(data.confidence_score);
+    } catch (err) {
+      if (weight > 78 || height > 185) setPredictedSize('L');
+      else if (weight < 58 || height < 165) setPredictedSize('S');
+      else setPredictedSize('M');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -166,7 +199,7 @@ export function SizePredictorModal({ isOpen, onClose }) {
             <input 
               type="range" min="150" max="205" value={height} 
               onChange={(e) => setHeight(Number(e.target.value))}
-              className="w-full accent-indigo-500"
+              className="w-full accent-indigo-500 cursor-pointer"
             />
           </div>
 
@@ -177,7 +210,7 @@ export function SizePredictorModal({ isOpen, onClose }) {
             <input 
               type="range" min="45" max="120" value={weight} 
               onChange={(e) => setWeight(Number(e.target.value))}
-              className="w-full accent-indigo-500"
+              className="w-full accent-indigo-500 cursor-pointer"
             />
           </div>
 
@@ -189,7 +222,7 @@ export function SizePredictorModal({ isOpen, onClose }) {
                   key={f}
                   onClick={() => setFit(f)}
                   className={`py-1.5 text-xs font-medium rounded-lg transition ${
-                    fit === f ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+                    fit === f ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30' : 'bg-slate-800 text-slate-400 hover:text-white'
                   }`}
                 >
                   {f}
@@ -200,15 +233,17 @@ export function SizePredictorModal({ isOpen, onClose }) {
 
           <button
             onClick={handlePredict}
-            className="w-full mt-2 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 text-white text-sm font-semibold shadow-lg shadow-indigo-600/30 transition"
+            disabled={loading}
+            className="w-full mt-2 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 text-white text-sm font-semibold shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2 cursor-pointer"
           >
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
             Calculate Optimal Fit
           </button>
 
           <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700 text-center">
             <span className="text-xs text-slate-400 block">Recommended Size</span>
             <span className="text-2xl font-black text-indigo-400">{predictedSize}</span>
-            <span className="text-[11px] text-emerald-400 block mt-0.5">97% confidence accuracy</span>
+            <span className="text-[11px] text-emerald-400 block mt-0.5">{confidence}% confidence accuracy</span>
           </div>
         </div>
       </div>
