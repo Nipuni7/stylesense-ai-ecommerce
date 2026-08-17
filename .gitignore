@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production / Build
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Python / ML artifacts
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editor / OS files
+.DS_Store
+.vscode/
+.idea/
+Thumbs.db
