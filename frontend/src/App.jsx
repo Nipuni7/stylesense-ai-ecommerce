@@ -22,7 +22,7 @@ export default function App() {
   const [isSizePredictorOpen, setIsSizePredictorOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
 
-  const categories = ['All', 'Outerwear', 'Formal', 'Casual', 'Dresses', 'Bottoms'];
+const categories = ['All', 'Streetwear', 'Formal', 'Luxury Evening', 'Casual', 'Activewear', 'Footwear', 'Accessories'];
 
   const addToCart = (product) => {
     setCart((prev) => {
