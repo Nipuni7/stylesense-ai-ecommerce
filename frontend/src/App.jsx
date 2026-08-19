@@ -1,22 +1,60 @@
 import React, { useState } from 'react';
 import { 
   Sparkles, ShoppingBag, Search, Camera, Bot, Shirt, 
-  ArrowRight, Star, Heart, SlidersHorizontal 
+  ArrowRight, Star, Heart, Eye 
 } from 'lucide-react';
 import { SAMPLE_PRODUCTS } from './data/products';
 import { AIStylistDrawer, VisualSearchModal, SizePredictorModal } from './components/AIModals';
+import CartDrawer from './components/CartDrawer';
+import QuickViewModal from './components/QuickViewModal';
 
 export default function App() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [cartCount, setCartCount] = useState(0);
+  
+  // Cart state
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   // Modals state
   const [isStylistOpen, setIsStylistOpen] = useState(false);
   const [isVisualSearchOpen, setIsVisualSearchOpen] = useState(false);
   const [isSizePredictorOpen, setIsSizePredictorOpen] = useState(false);
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
 
   const categories = ['All', 'Outerwear', 'Formal', 'Casual', 'Dresses', 'Bottoms'];
+
+  const addToCart = (product) => {
+    setCart((prev) => {
+      const existing = prev.find((item) => item.id === product.id);
+      if (existing) {
+        return prev.map((item) =>
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [...prev, { ...product, quantity: 1 }];
+    });
+  };
+
+  const updateQuantity = (id, delta) => {
+    setCart((prev) =>
+      prev
+        .map((item) => {
+          if (item.id === id) {
+            const newQty = item.quantity + delta;
+            return newQty > 0 ? { ...item, quantity: newQty } : null;
+          }
+          return item;
+        })
+        .filter(Boolean)
+    );
+  };
+
+  const removeItem = (id) => {
+    setCart((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const totalCartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const filteredProducts = SAMPLE_PRODUCTS.filter((product) => {
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
@@ -53,17 +91,20 @@ export default function App() {
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setIsVisualSearchOpen(true)}
-              className="p-2 text-slate-300 hover:text-white rounded-lg hover:bg-slate-800 transition flex items-center gap-1 text-xs"
+              className="p-2 text-slate-300 hover:text-white rounded-lg hover:bg-slate-800 transition flex items-center gap-1 text-xs cursor-pointer"
             >
               <Camera className="w-4 h-4 text-indigo-400" />
               <span className="hidden sm:inline">Visual Search</span>
             </button>
 
-            <button className="relative p-2 text-slate-300 hover:text-white rounded-lg hover:bg-slate-800 transition">
+            <button 
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-2 text-slate-300 hover:text-white rounded-lg hover:bg-slate-800 transition cursor-pointer"
+            >
               <ShoppingBag className="w-5 h-5" />
-              {cartCount > 0 && (
+              {totalCartCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-indigo-600 text-white rounded-full text-xs font-bold flex items-center justify-center animate-bounce">
-                  {cartCount}
+                  {totalCartCount}
                 </span>
               )}
             </button>
@@ -96,7 +137,7 @@ export default function App() {
             </a>
             <button 
               onClick={() => setIsVisualSearchOpen(true)}
-              className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 font-semibold text-slate-200 flex items-center justify-center gap-2 transition"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 font-semibold text-slate-200 flex items-center justify-center gap-2 transition cursor-pointer"
             >
               <Camera className="w-4 h-4 text-indigo-400" />
               Try Visual Search
@@ -176,7 +217,7 @@ export default function App() {
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition whitespace-nowrap ${
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition whitespace-nowrap cursor-pointer ${
                 selectedCategory === cat 
                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' 
                   : 'bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800/60'
@@ -204,8 +245,13 @@ export default function App() {
                   <Sparkles className="w-3 h-3 text-indigo-400" />
                   {product.aiMatch}
                 </div>
-                <button className="absolute top-3 right-3 p-2 rounded-full bg-slate-950/60 backdrop-blur-md text-slate-300 hover:text-pink-400 transition">
-                  <Heart className="w-4 h-4" />
+                
+                {/* Quick View Button on Hover */}
+                <button 
+                  onClick={() => setQuickViewProduct(product)}
+                  className="absolute bottom-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition duration-300 px-3 py-1.5 rounded-lg bg-slate-950/80 backdrop-blur-md text-xs font-medium text-white flex items-center gap-1.5 hover:bg-slate-900 cursor-pointer"
+                >
+                  <Eye className="w-3.5 h-3.5 text-indigo-400" /> Quick View
                 </button>
               </div>
 
@@ -240,11 +286,11 @@ export default function App() {
                   </div>
 
                   <button 
-                    onClick={() => setCartCount(prev => prev + 1)}
-                    className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium shadow-md shadow-indigo-600/20 transition flex items-center gap-1.5"
+                    onClick={() => addToCart(product)}
+                    className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium shadow-md shadow-indigo-600/20 transition flex items-center gap-1.5 cursor-pointer"
                   >
                     <ShoppingBag className="w-4 h-4" />
-                    Add to Cart
+                    Add
                   </button>
                 </div>
               </div>
@@ -253,7 +299,20 @@ export default function App() {
         </div>
       </section>
 
-      {/* AI Interactive Drawers & Modals */}
+      {/* Drawers & Modals */}
+      <CartDrawer 
+        isOpen={isCartOpen} 
+        onClose={() => setIsCartOpen(false)}
+        cart={cart}
+        updateQuantity={updateQuantity}
+        removeItem={removeItem}
+      />
+      <QuickViewModal 
+        product={quickViewProduct}
+        isOpen={!!quickViewProduct}
+        onClose={() => setQuickViewProduct(null)}
+        onAddToCart={addToCart}
+      />
       <AIStylistDrawer isOpen={isStylistOpen} onClose={() => setIsStylistOpen(false)} />
       <VisualSearchModal isOpen={isVisualSearchOpen} onClose={() => setIsVisualSearchOpen(false)} />
       <SizePredictorModal isOpen={isSizePredictorOpen} onClose={() => setIsSizePredictorOpen(false)} />

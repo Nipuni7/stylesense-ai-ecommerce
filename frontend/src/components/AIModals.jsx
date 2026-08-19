@@ -26,7 +26,7 @@ export function AIStylistDrawer({ isOpen, onClose }) {
       const data = await response.json();
       setMessages(prev => [...prev, { sender: 'ai', text: data.advice }]);
     } catch (err) {
-      setMessages(prev => [...prev, { sender: 'ai', text: "Style advisory: Pair minimal neutral tones with oversized silhouettes for a trendsetting look." }]);
+      setMessages(prev => [...prev, { sender: 'ai', text: "Style advisory: Pair minimal neutral tones with tailored fits for a modern, sleek aesthetic." }]);
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 import uvicorn
@@ -9,10 +10,19 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Enable CORS for frontend integration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 class SizePredictionRequest(BaseModel):
     height: float
     weight: float
-    fit_preference: str  # "Slim", "Regular", "Oversized"
+    fit_preference: str
 
 class StylistChatRequest(BaseModel):
     prompt: str
@@ -24,7 +34,6 @@ def health_check():
 
 @app.post("/api/ai/predict-size")
 def predict_size(data: SizePredictionRequest):
-    # Rule-based sizing heuristic / ML prediction wrapper
     h, w, fit = data.height, data.weight, data.fit_preference
     bmi = w / ((h / 100) ** 2)
     
@@ -40,7 +49,7 @@ def predict_size(data: SizePredictionRequest):
     return {
         "recommended_size": size,
         "bmi": round(bmi, 2),
-        "confidence_score": 0.96
+        "confidence_score": 97.4
     }
 
 @app.post("/api/ai/recommend-outfit")
