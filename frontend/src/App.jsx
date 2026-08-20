@@ -32,8 +32,8 @@ import { DEPARTMENTS, SUB_CATEGORIES, PRODUCTS as INITIAL_PRODUCTS } from './dat
 export default function App() {
   // Navigation: 'shop' | 'checkout' | 'faq' | 'contact' | 'admin'
   const [currentPage, setCurrentPage] = useState('shop');
-  const [activeDept, setActiveDept] = useState('all');
-  const [selectedSub, setSelectedSub] = useState('All Items');
+  const [activeDept, setActiveDept] = useState('women'); // Defaulted to Women
+  const [selectedSub, setSelectedSub] = useState('All Women');
   const [searchQuery, setSearchQuery] = useState('');
   
   // Store & Product State
@@ -74,7 +74,7 @@ export default function App() {
   // Click Department Box Handler (Smooth scroll directly to products)
   const handleSelectDepartment = (deptId) => {
     setActiveDept(deptId);
-    setSelectedSub(deptId === 'all' ? 'All Items' : (SUB_CATEGORIES[deptId] ? SUB_CATEGORIES[deptId][0] : 'All'));
+    setSelectedSub(SUB_CATEGORIES[deptId] ? SUB_CATEGORIES[deptId][0] : 'All');
     setCurrentPage('shop');
     const catalogElement = document.getElementById('catalog-section');
     if (catalogElement) {
@@ -82,9 +82,9 @@ export default function App() {
     }
   };
 
-  // Filter Products
+  // Filter Products strictly by active department
   const filteredProducts = productsList.filter((p) => {
-    const matchesDept = activeDept === 'all' || p.department === activeDept;
+    const matchesDept = p.department === activeDept;
     const matchesSub = selectedSub.startsWith('All') || p.subCategory === selectedSub;
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -180,10 +180,10 @@ export default function App() {
     setInputMessage('');
 
     setTimeout(() => {
-      let botReply = "I recommend checking out our Silk Blend Emerald Maxi Dress or Floral Chiffon Sundress for an effortless look!";
+      let botReply = "I recommend checking out our Silk Blend Emerald Maxi Dress or Structured Power Blazer for an effortless look!";
       const lower = userText.toLowerCase();
       if (lower.includes('women') || lower.includes('dress') || lower.includes('frock')) {
-        botReply = "For Women, our Silk Emerald Maxi Dress and Structured Power Blazers are our highest-rated pieces!";
+        botReply = "For Women, our Silk Emerald Maxi Dress and Floral Sundresses are our highest-rated pieces!";
       } else if (lower.includes('men') || lower.includes('shirt')) {
         botReply = "For men, our 280 GSM Heavyweight Washed Graphic Tee paired with the Oxford Cotton Button-Down is trending.";
       } else if (lower.includes('checkout') || lower.includes('order')) {
@@ -208,7 +208,7 @@ export default function App() {
           <div className="bg-[#0F172A]/90 border border-slate-800 rounded-full px-6 py-2.5 flex items-center justify-between shadow-xl">
             
             {/* Brand Logo */}
-            <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => { setCurrentPage('shop'); setActiveDept('all'); }}>
+            <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => handleSelectDepartment('women')}>
               <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-[#06B6D4] to-[#0284C7] flex items-center justify-center shadow-md shadow-cyan-500/20">
                 <Sparkles className="h-5 w-5 text-slate-950" />
               </div>
@@ -217,15 +217,17 @@ export default function App() {
               </span>
             </div>
 
-            {/* Nav Links */}
+            {/* Nav Links (Direct Department Tabs) */}
             <nav className="hidden md:flex items-center gap-7 text-xs font-semibold text-slate-300">
-              <button onClick={() => { setCurrentPage('shop'); setActiveDept('all'); }} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'shop' && activeDept === 'all' ? 'text-[#06B6D4] font-bold' : ''}`}>Shop</button>
-              <button onClick={() => handleSelectDepartment('women')} className={`hover:text-[#06B6D4] transition-colors ${activeDept === 'women' ? 'text-[#06B6D4] font-bold' : ''}`}>Women</button>
-              <button onClick={() => handleSelectDepartment('men')} className={`hover:text-[#06B6D4] transition-colors ${activeDept === 'men' ? 'text-[#06B6D4] font-bold' : ''}`}>Men</button>
-              <button onClick={() => handleSelectDepartment('kids')} className={`hover:text-[#06B6D4] transition-colors ${activeDept === 'kids' ? 'text-[#06B6D4] font-bold' : ''}`}>Kids</button>
-              <button onClick={() => setCurrentPage('contact')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'contact' ? 'text-[#06B6D4] font-bold' : ''}`}>Contact Us</button>
+              <button onClick={() => handleSelectDepartment('women')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'shop' && activeDept === 'women' ? 'text-[#06B6D4] font-bold' : ''}`}>Women</button>
+              <button onClick={() => handleSelectDepartment('men')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'shop' && activeDept === 'men' ? 'text-[#06B6D4] font-bold' : ''}`}>Men</button>
+              <button onClick={() => handleSelectDepartment('kids')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'shop' && activeDept === 'kids' ? 'text-[#06B6D4] font-bold' : ''}`}>Kids</button>
+              <button onClick={() => handleSelectDepartment('shoes')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'shop' && activeDept === 'shoes' ? 'text-[#06B6D4] font-bold' : ''}`}>Shoes</button>
+              <button onClick={() => handleSelectDepartment('handbags')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'shop' && activeDept === 'handbags' ? 'text-[#06B6D4] font-bold' : ''}`}>Handbags</button>
+              <button onClick={() => handleSelectDepartment('cosmetics')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'shop' && activeDept === 'cosmetics' ? 'text-[#06B6D4] font-bold' : ''}`}>Cosmetics</button>
+              <button onClick={() => setCurrentPage('contact')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'contact' ? 'text-[#06B6D4] font-bold' : ''}`}>Contact</button>
               <button onClick={() => setCurrentPage('faq')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'faq' ? 'text-[#06B6D4] font-bold' : ''}`}>FAQ</button>
-              <button onClick={() => setCurrentPage('admin')} className={`px-3 py-1 rounded-full border border-cyan-500/30 text-[#06B6D4] hover:bg-cyan-500/10 transition-colors ${currentPage === 'admin' ? 'bg-cyan-500/20 font-bold' : ''}`}>Admin Portal</button>
+              <button onClick={() => setCurrentPage('admin')} className={`px-3 py-1 rounded-full border border-cyan-500/30 text-[#06B6D4] hover:bg-cyan-500/10 transition-colors ${currentPage === 'admin' ? 'bg-cyan-500/20 font-bold' : ''}`}>Admin</button>
             </nav>
 
             {/* Quick Actions */}
@@ -256,12 +258,12 @@ export default function App() {
       </header>
 
       {/* ========================================================
-          PAGE 1: MAIN SHOP WITH LUXURY DRESS HERO & LARGE BOXES
+          PAGE 1: MAIN SHOP WITH DRESS HERO & DIRECT CATEGORY BOXES
          ======================================================== */}
       {currentPage === 'shop' && (
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
           
-          {/* HERO BANNER SECTION (WITH HIGH-FASHION SILK DRESS IMAGE) */}
+          {/* HERO BANNER SECTION */}
           <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-900 via-[#0A1526] to-slate-900 border border-slate-800 p-8 sm:p-14 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="space-y-5 max-w-xl">
               <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-xs font-semibold text-[#06B6D4] uppercase tracking-wider">
@@ -304,7 +306,7 @@ export default function App() {
           </div>
 
           {/* ========================================================
-              LARGE VISUAL DEPARTMENT BOXES (WOMEN, MEN, KIDS, SHOES, BAGS, COSMETICS)
+              LARGE VISUAL DEPARTMENT BOXES
              ======================================================== */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -351,13 +353,13 @@ export default function App() {
           </div>
 
           {/* ========================================================
-              DETAILED PRODUCT CATALOG (WITH SUB-CATEGORY PILLS & SEARCH)
+              DETAILED PRODUCT CATALOG (DIRECT ACTIVE DEPARTMENT)
              ======================================================== */}
           <div id="catalog-section" className="space-y-6 pt-6 border-t border-slate-800">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h3 className="text-2xl font-bold text-white capitalize">
-                  {activeDept === 'all' ? 'All Collections' : `${activeDept} Atelier`}
+                  {activeDept} Atelier
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
                   Showing {filteredProducts.length} items in <span className="text-[#06B6D4] font-semibold">{selectedSub}</span>
@@ -369,7 +371,7 @@ export default function App() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
                 <input 
                   type="text" 
-                  placeholder="Search dresses, tops, blazers..." 
+                  placeholder={`Search in ${activeDept}...`} 
                   value={searchQuery} 
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
@@ -377,9 +379,9 @@ export default function App() {
               </div>
             </div>
 
-            {/* Sub-Category Pills */}
+            {/* Sub-Category Pills for Active Department */}
             <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-              {(activeDept === 'all' ? ['All Items', 'Trending', 'Popular', 'AI Top Pick'] : SUB_CATEGORIES[activeDept] || ['All']).map((sub) => (
+              {(SUB_CATEGORIES[activeDept] || ['All']).map((sub) => (
                 <button
                   key={sub}
                   onClick={() => setSelectedSub(sub)}
@@ -841,7 +843,7 @@ export default function App() {
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-[#06B6D4]" />
-                <h3 className="font-bold text-white text-base">AI Bespoke Size Atelier</h3>
+                <h3 className="font-bold text-base text-white">AI Bespoke Size Atelier</h3>
               </div>
               <button onClick={() => setIsAiModalOpen(false)} className="text-slate-400 hover:text-white"><X className="h-5 w-5" /></button>
             </div>
@@ -954,12 +956,12 @@ export default function App() {
           </div>
 
           <div className="space-y-3">
-            <h4 className="text-white font-bold uppercase tracking-wider text-[11px]">Explore</h4>
+            <h4 className="text-white font-bold uppercase tracking-wider text-[11px]">Departments</h4>
             <ul className="space-y-2">
               <li><button onClick={() => handleSelectDepartment('women')} className="hover:text-cyan-400">Women Dresses & Tops</button></li>
               <li><button onClick={() => handleSelectDepartment('men')} className="hover:text-cyan-400">Men Essentials</button></li>
               <li><button onClick={() => handleSelectDepartment('kids')} className="hover:text-cyan-400">Kids Atelier</button></li>
-              <li><button onClick={() => setIsAiModalOpen(true)} className="hover:text-cyan-400">AI Size Predictor</button></li>
+              <li><button onClick={() => handleSelectDepartment('shoes')} className="hover:text-cyan-400">Footwear</button></li>
             </ul>
           </div>
 
