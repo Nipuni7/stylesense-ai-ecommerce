@@ -12,12 +12,10 @@ import {
   ArrowLeft, 
   ShieldCheck, 
   Truck, 
-  RotateCcw, 
   ChevronRight,
   ChevronDown,
   CheckCircle2,
   Tag,
-  Layers,
   CreditCard,
   Mail,
   Phone,
@@ -27,13 +25,12 @@ import {
   Users,
   DollarSign,
   Plus,
-  HelpCircle,
   Headphones
 } from 'lucide-react';
 import { DEPARTMENTS, SUB_CATEGORIES, PRODUCTS as INITIAL_PRODUCTS } from './data/products';
 
 export default function App() {
-  // Navigation: 'shop' | 'collections' | 'checkout' | 'faq' | 'contact' | 'admin'
+  // Navigation: 'shop' | 'checkout' | 'faq' | 'contact' | 'admin'
   const [currentPage, setCurrentPage] = useState('shop');
   const [activeDept, setActiveDept] = useState('all');
   const [selectedSub, setSelectedSub] = useState('All Items');
@@ -55,7 +52,7 @@ export default function App() {
   // Admin Panel State
   const [ordersList, setOrdersList] = useState([
     { id: 'ORD-9021', email: 'contact@stylesense.studio', name: 'Senuka Chandunu', address: '123, Highlevel Road, Maharagama', postal: '69696', phone: '0771234567', date: '2026-08-19', status: 'Delivered', price: 145.00 },
-    { id: 'ORD-9022', email: 'theekshana@law.ac.lk', name: 'P.G.N. Theekshana', address: 'No.45, Galle Road, Colombo', postal: '00300', phone: '0719876543', date: '2026-08-20', status: 'Processing', price: 210.00 },
+    { id: 'ORD-9022', email: 'theekshana@stylesense.studio', name: 'P.G.N. Theekshana', address: 'No.45, Galle Road, Colombo', postal: '00300', phone: '0719876543', date: '2026-08-20', status: 'Processing', price: 210.00 },
     { id: 'ORD-9023', email: 'saman@yahoo.com', name: 'Saman Kumara', address: 'No.18, Kandy Road, Kiribathgoda', postal: '11600', phone: '0776543456', date: '2026-08-20', status: 'Shipped', price: 82.00 }
   ]);
 
@@ -67,12 +64,23 @@ export default function App() {
 
   // AI Chatbot State
   const [chatMessages, setChatMessages] = useState([
-    { sender: 'bot', text: 'Hello! I am your StyleSense AI Stylist. Ask me about outfits, size predictions, or checkout orders!' }
+    { sender: 'bot', text: 'Hello! I am your StyleSense AI Stylist. Ask me about outfits, size predictions, or curated department picks!' }
   ]);
   const [inputMessage, setInputMessage] = useState('');
 
   // FAQ Accordion Toggle
   const [openFaq, setOpenFaq] = useState(null);
+
+  // Click Department Box Handler (Smooth scroll directly to products)
+  const handleSelectDepartment = (deptId) => {
+    setActiveDept(deptId);
+    setSelectedSub(deptId === 'all' ? 'All Items' : (SUB_CATEGORIES[deptId] ? SUB_CATEGORIES[deptId][0] : 'All'));
+    setCurrentPage('shop');
+    const catalogElement = document.getElementById('catalog-section');
+    if (catalogElement) {
+      catalogElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   // Filter Products
   const filteredProducts = productsList.filter((p) => {
@@ -84,7 +92,7 @@ export default function App() {
     return matchesDept && matchesSub && matchesSearch;
   });
 
-  // Cart Management
+  // Cart Handlers
   const addToCart = (product) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
@@ -160,7 +168,7 @@ export default function App() {
     setRecommendation({
       size,
       confidence: '98%',
-      reason: `Calibrated for ${userHeight}cm & ${w}kg in a sharp ${fitPreference} fit.`
+      reason: `Calibrated for ${userHeight}cm & ${w}kg in a modern ${fitPreference} fit.`
     });
   };
 
@@ -172,12 +180,12 @@ export default function App() {
     setInputMessage('');
 
     setTimeout(() => {
-      let botReply = "I recommend our Silk Blend Emerald Maxi Dress paired with Italian Chelsea Boots for a refined finish!";
+      let botReply = "I recommend checking out our Silk Blend Emerald Maxi Dress or Floral Chiffon Sundress for an effortless look!";
       const lower = userText.toLowerCase();
-      if (lower.includes('bag') || lower.includes('handbag')) {
-        botReply = "Our Quilted Lambskin Chain Crossbody bag is tailored for modern sophistication.";
+      if (lower.includes('women') || lower.includes('dress') || lower.includes('frock')) {
+        botReply = "For Women, our Silk Emerald Maxi Dress and Structured Power Blazers are our highest-rated pieces!";
       } else if (lower.includes('men') || lower.includes('shirt')) {
-        botReply = "For gentlemen, our Heavyweight Vintage Graphic Tee paired with the Oxford Cotton Button-Down is trending.";
+        botReply = "For men, our 280 GSM Heavyweight Washed Graphic Tee paired with the Oxford Cotton Button-Down is trending.";
       } else if (lower.includes('checkout') || lower.includes('order')) {
         botReply = "You can proceed to Checkout from the Cart drawer and use code STYLESENSE20 for 20% off!";
       }
@@ -186,21 +194,21 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#060D17] text-[#E2E8F0] selection:bg-[#06B6D4] selection:text-black font-sans flex flex-col justify-between">
+    <div className="min-h-screen bg-[#050B14] text-[#E2E8F0] selection:bg-[#06B6D4] selection:text-black font-sans flex flex-col justify-between">
       
-      {/* 1. TOP PROMOTIONAL ANNOUNCEMENT */}
-      <div className="bg-gradient-to-r from-[#0284C7] via-[#06B6D4] to-[#0D9488] py-2 px-4 text-center text-xs font-bold tracking-wide text-slate-950 flex items-center justify-center gap-2">
+      {/* 1. TOP PROMO BANNER */}
+      <div className="bg-gradient-to-r from-[#0891B2] via-[#06B6D4] to-[#0D9488] py-2 px-4 text-center text-xs font-bold tracking-wide text-slate-950 flex items-center justify-center gap-2">
         <Tag className="h-3.5 w-3.5 fill-slate-950" />
-        <span>Use code <strong>STYLESENSE20</strong> for 20% OFF across all collections! Free Islandwide & Global Shipping</span>
+        <span>Use code <strong>STYLESENSE20</strong> for 20% OFF across Women, Men, Kids & Footwear collections!</span>
       </div>
 
-      {/* 2. FLOATING PROFESSIONAL PILL NAVBAR */}
-      <header className="sticky top-0 z-40 bg-[#060D17]/85 backdrop-blur-xl border-b border-slate-800/80 py-3">
+      {/* 2. FLOATING PROFESSIONAL NAVBAR */}
+      <header className="sticky top-0 z-40 bg-[#050B14]/85 backdrop-blur-xl border-b border-[#1E293B] py-3">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-[#0F172A]/90 border border-slate-800 rounded-full px-6 py-2.5 flex items-center justify-between shadow-xl">
             
-            {/* Logo */}
-            <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => setCurrentPage('shop')}>
+            {/* Brand Logo */}
+            <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => { setCurrentPage('shop'); setActiveDept('all'); }}>
               <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-[#06B6D4] to-[#0284C7] flex items-center justify-center shadow-md shadow-cyan-500/20">
                 <Sparkles className="h-5 w-5 text-slate-950" />
               </div>
@@ -212,8 +220,9 @@ export default function App() {
             {/* Nav Links */}
             <nav className="hidden md:flex items-center gap-7 text-xs font-semibold text-slate-300">
               <button onClick={() => { setCurrentPage('shop'); setActiveDept('all'); }} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'shop' && activeDept === 'all' ? 'text-[#06B6D4] font-bold' : ''}`}>Shop</button>
-              <button onClick={() => { setCurrentPage('collections'); }} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'collections' ? 'text-[#06B6D4] font-bold' : ''}`}>Collections</button>
-              <button onClick={() => { setCurrentPage('shop'); setSelectedSub('Trending'); }} className="hover:text-[#06B6D4] transition-colors">Sale</button>
+              <button onClick={() => handleSelectDepartment('women')} className={`hover:text-[#06B6D4] transition-colors ${activeDept === 'women' ? 'text-[#06B6D4] font-bold' : ''}`}>Women</button>
+              <button onClick={() => handleSelectDepartment('men')} className={`hover:text-[#06B6D4] transition-colors ${activeDept === 'men' ? 'text-[#06B6D4] font-bold' : ''}`}>Men</button>
+              <button onClick={() => handleSelectDepartment('kids')} className={`hover:text-[#06B6D4] transition-colors ${activeDept === 'kids' ? 'text-[#06B6D4] font-bold' : ''}`}>Kids</button>
               <button onClick={() => setCurrentPage('contact')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'contact' ? 'text-[#06B6D4] font-bold' : ''}`}>Contact Us</button>
               <button onClick={() => setCurrentPage('faq')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'faq' ? 'text-[#06B6D4] font-bold' : ''}`}>FAQ</button>
               <button onClick={() => setCurrentPage('admin')} className={`px-3 py-1 rounded-full border border-cyan-500/30 text-[#06B6D4] hover:bg-cyan-500/10 transition-colors ${currentPage === 'admin' ? 'bg-cyan-500/20 font-bold' : ''}`}>Admin Portal</button>
@@ -247,221 +256,210 @@ export default function App() {
       </header>
 
       {/* ========================================================
-          PAGE 1: SHOP & HERO CAROUSEL VIEW
+          PAGE 1: MAIN SHOP WITH LUXURY DRESS HERO & LARGE BOXES
          ======================================================== */}
       {currentPage === 'shop' && (
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
           
-          {/* HERO BANNER SECTION */}
-          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-900 via-[#0B1528] to-slate-900 border border-slate-800 p-8 sm:p-14 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
+          {/* HERO BANNER SECTION (WITH HIGH-FASHION SILK DRESS IMAGE) */}
+          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-900 via-[#0A1526] to-slate-900 border border-slate-800 p-8 sm:p-14 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="space-y-5 max-w-xl">
               <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-xs font-semibold text-[#06B6D4] uppercase tracking-wider">
-                <Sparkles className="h-3.5 w-3.5" /> Luxury AI Collection 2026
+                <Sparkles className="h-3.5 w-3.5" /> Haute Couture & Modern Atelier 2026
               </span>
               <h1 className="text-4xl sm:text-6xl font-black text-white leading-tight tracking-tight">
                 Elevate Your Style <br />
                 <span className="bg-gradient-to-r from-[#06B6D4] via-[#38BDF8] to-[#10B981] bg-clip-text text-transparent">
-                  Walk in Prestige
+                  Wear with Elegance
                 </span>
               </h1>
               <p className="text-sm text-slate-400 leading-relaxed">
-                Discover curated designer footwear, haute couture silk dresses, and streetwear tailored with precision AI fit algorithms.
+                Find your perfect attire across silk evening gowns, tailored blazers, and luxury essentials tailored with precision AI fit algorithms.
               </p>
               <div className="flex items-center gap-3 pt-2">
                 <button 
-                  onClick={() => { setActiveDept('women'); setSelectedSub('All Women'); }} 
+                  onClick={() => handleSelectDepartment('women')} 
                   className="px-6 py-3 rounded-xl bg-[#06B6D4] text-slate-950 font-bold text-xs hover:bg-[#22D3EE] transition-all shadow-lg shadow-cyan-500/20"
                 >
-                  Shop Now
+                  Explore Women's Dresses
                 </button>
                 <button 
                   onClick={() => setIsAiModalOpen(true)} 
                   className="px-6 py-3 rounded-xl bg-slate-800 text-slate-200 border border-slate-700 font-semibold text-xs hover:bg-slate-700 transition-all"
                 >
-                  AI Fit Analysis
+                  AI Fit Matcher
                 </button>
               </div>
             </div>
 
-            <div className="relative w-full max-w-sm aspect-square flex items-center justify-center">
+            {/* High-Fashion Silk Dress Hero Image */}
+            <div className="relative w-full max-w-md aspect-[4/5] flex items-center justify-center">
               <div className="absolute inset-0 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
               <img 
-                src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&auto=format&fit=crop&q=80" 
-                alt="Featured Product" 
-                className="relative z-10 w-full h-full object-cover rounded-2xl border border-slate-700/60 shadow-2xl rotate-[-4deg] hover:rotate-0 transition-transform duration-500"
+                src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1000&auto=format&fit=crop&q=80" 
+                alt="Haute Couture Fashion Dress" 
+                className="relative z-10 w-full h-full object-cover rounded-3xl border border-slate-700/60 shadow-2xl hover:scale-[1.02] transition-transform duration-500"
               />
             </div>
           </div>
 
-          {/* DEPARTMENT PILL SELECTOR */}
-          <div className="space-y-4">
+          {/* ========================================================
+              LARGE VISUAL DEPARTMENT BOXES (WOMEN, MEN, KIDS, SHOES, BAGS, COSMETICS)
+             ======================================================== */}
+          <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-white tracking-tight">Explore Categories</h2>
-              <div className="flex items-center gap-2">
-                <Search className="h-4 w-4 text-slate-500" />
+              <div>
+                <h2 className="text-3xl font-extrabold text-white tracking-tight">Select Department Sanctuary</h2>
+                <p className="text-xs text-slate-400 mt-1">Click any category box below to dive directly into its curated item catalog.</p>
+              </div>
+              <span className="text-xs font-mono text-[#06B6D4] uppercase tracking-wider hidden sm:block">6 Curated Ateliers</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {DEPARTMENTS.map((dept) => (
+                <div
+                  key={dept.id}
+                  onClick={() => handleSelectDepartment(dept.id)}
+                  className={`group relative h-80 rounded-3xl overflow-hidden cursor-pointer border transition-all duration-500 shadow-xl flex flex-col justify-end p-7 ${
+                    activeDept === dept.id ? 'border-[#06B6D4] ring-2 ring-[#06B6D4]/30' : 'border-slate-800 hover:border-[#06B6D4]'
+                  }`}
+                >
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-1000"
+                    style={{ backgroundImage: `url(${dept.image})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#050B14] via-[#050B14]/65 to-transparent" />
+
+                  <div className="relative z-10 space-y-1.5">
+                    <span className="text-[10px] tracking-wider text-[#06B6D4] font-mono uppercase bg-slate-900/90 px-3 py-1 rounded-full border border-cyan-500/30 font-semibold">
+                      {dept.itemCount}
+                    </span>
+                    <h3 className="text-2xl font-bold text-white group-hover:text-[#06B6D4] transition-colors">
+                      {dept.name}
+                    </h3>
+                    <p className="text-xs text-[#CBD5E1] line-clamp-2 leading-relaxed">
+                      {dept.tagline}
+                    </p>
+                    <div className="pt-2 flex items-center gap-1.5 text-xs font-bold text-[#06B6D4] group-hover:translate-x-2 transition-transform">
+                      <span>Explore Collection</span>
+                      <ChevronRight className="h-4 w-4" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ========================================================
+              DETAILED PRODUCT CATALOG (WITH SUB-CATEGORY PILLS & SEARCH)
+             ======================================================== */}
+          <div id="catalog-section" className="space-y-6 pt-6 border-t border-slate-800">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-2xl font-bold text-white capitalize">
+                  {activeDept === 'all' ? 'All Collections' : `${activeDept} Atelier`}
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Showing {filteredProducts.length} items in <span className="text-[#06B6D4] font-semibold">{selectedSub}</span>
+                </p>
+              </div>
+
+              {/* Search Bar */}
+              <div className="relative max-w-xs w-full">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
                 <input 
                   type="text" 
-                  placeholder="Search item..." 
+                  placeholder="Search dresses, tops, blazers..." 
                   value={searchQuery} 
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
                 />
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
-              {[{ id: 'all', name: '✨ All Departments' }, ...DEPARTMENTS].map((dept) => (
+            {/* Sub-Category Pills */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+              {(activeDept === 'all' ? ['All Items', 'Trending', 'Popular', 'AI Top Pick'] : SUB_CATEGORIES[activeDept] || ['All']).map((sub) => (
                 <button
-                  key={dept.id}
-                  onClick={() => {
-                    setActiveDept(dept.id);
-                    setSelectedSub(dept.id === 'all' ? 'All Items' : (SUB_CATEGORIES[dept.id] ? SUB_CATEGORIES[dept.id][0] : 'All'));
-                  }}
-                  className={`px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                    activeDept === dept.id
-                      ? 'bg-[#06B6D4] text-slate-950 shadow-md shadow-cyan-500/20'
+                  key={sub}
+                  onClick={() => setSelectedSub(sub)}
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+                    selectedSub === sub
+                      ? 'bg-[#06B6D4] text-slate-950 font-bold shadow-md shadow-cyan-500/20'
                       : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
                   }`}
                 >
-                  {dept.name}
+                  {sub}
                 </button>
               ))}
             </div>
 
-            {/* Sub-Category Chips */}
-            {activeDept !== 'all' && SUB_CATEGORIES[activeDept] && (
-              <div className="flex items-center gap-2 overflow-x-auto pt-1 pb-2 scrollbar-none">
-                {SUB_CATEGORIES[activeDept].map((sub) => (
-                  <button
-                    key={sub}
-                    onClick={() => setSelectedSub(sub)}
-                    className={`px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-                      selectedSub === sub
-                        ? 'bg-cyan-500/20 text-[#06B6D4] border border-cyan-500/50'
-                        : 'bg-slate-950 text-slate-400 hover:text-slate-200 border border-slate-800'
-                    }`}
-                  >
-                    {sub}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* PRODUCT CARDS GRID */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProducts.map((p) => (
-              <div 
-                key={p.id}
-                className="group relative bg-slate-900/60 rounded-2xl border border-slate-800 overflow-hidden hover:border-cyan-500/50 transition-all duration-300 flex flex-col justify-between hover:shadow-xl hover:shadow-cyan-500/5"
-              >
-                <div className="relative aspect-[4/5] overflow-hidden bg-slate-950">
-                  <img
-                    src={p.image}
-                    alt={p.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  {p.badge && (
-                    <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-950/80 backdrop-blur-md text-[#06B6D4] border border-cyan-500/30">
-                      {p.badge}
-                    </span>
-                  )}
-                </div>
-
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
-                      <span className="text-[#06B6D4] text-[10px] font-bold uppercase">{p.subCategory}</span>
-                      <div className="flex items-center gap-1 text-amber-400">
-                        <Star className="h-3 w-3 fill-amber-400" />
-                        <span>{p.rating}</span>
-                        <span className="text-slate-500 text-[11px]">({p.reviewsCount})</span>
-                      </div>
-                    </div>
-                    <h3 className="font-bold text-white text-sm group-hover:text-[#06B6D4] transition-colors line-clamp-1">
-                      {p.name}
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">
-                      {p.description}
-                    </p>
-                  </div>
-
-                  <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
-                    <div>
-                      <span className="text-lg font-bold text-white">${p.price.toFixed(2)}</span>
-                      {p.originalPrice && (
-                        <span className="text-xs text-slate-500 line-through ml-2">
-                          ${p.originalPrice.toFixed(2)}
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => addToCart(p)}
-                      className="px-3.5 py-1.5 rounded-xl bg-[#06B6D4] text-slate-950 text-xs font-bold hover:bg-[#22D3EE] transition-all flex items-center gap-1.5 active:scale-95"
-                    >
-                      <ShoppingBag className="h-3.5 w-3.5" />
-                      <span>Add</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-        </main>
-      )}
-
-      {/* ========================================================
-          PAGE 2: COLLECTIONS SANCTUARY HUB
-         ======================================================== */}
-      {currentPage === 'collections' && (
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
-          <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-xs font-mono text-[#06B6D4] uppercase tracking-widest">Maison Collections</span>
-            <h2 className="text-4xl font-extrabold text-white tracking-tight">The Curated Ateliers</h2>
-            <p className="text-xs text-slate-400">Select any department to jump into dedicated designer collections.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {DEPARTMENTS.map((dept) => (
-              <div
-                key={dept.id}
-                onClick={() => {
-                  setActiveDept(dept.id);
-                  setSelectedSub(SUB_CATEGORIES[dept.id] ? SUB_CATEGORIES[dept.id][0] : 'All');
-                  setCurrentPage('shop');
-                }}
-                className="group relative h-96 rounded-3xl overflow-hidden cursor-pointer border border-slate-800 hover:border-[#06B6D4] transition-all duration-700 shadow-2xl flex flex-col justify-end p-8"
-              >
+            {/* Product Cards Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filteredProducts.map((p) => (
                 <div 
-                  className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-1000"
-                  style={{ backgroundImage: `url(${dept.image})` }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
+                  key={p.id}
+                  className="group relative bg-slate-900/60 rounded-2xl border border-slate-800 overflow-hidden hover:border-[#06B6D4]/60 transition-all duration-300 flex flex-col justify-between hover:shadow-2xl hover:shadow-cyan-500/5"
+                >
+                  <div className="relative aspect-[4/5] overflow-hidden bg-slate-950">
+                    <img
+                      src={p.image}
+                      alt={p.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    {p.badge && (
+                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#050B14]/85 backdrop-blur-md text-[#06B6D4] border border-cyan-500/30 font-mono">
+                        {p.badge}
+                      </span>
+                    )}
+                  </div>
 
-                <div className="relative z-10 space-y-2">
-                  <span className="text-[10px] tracking-wider text-[#06B6D4] font-mono uppercase bg-slate-900/90 px-3 py-1 rounded-full border border-cyan-500/30">
-                    {dept.itemCount}
-                  </span>
-                  <h3 className="text-2xl font-bold text-white group-hover:text-[#06B6D4] transition-colors">
-                    {dept.name}
-                  </h3>
-                  <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
-                    {dept.tagline}
-                  </p>
-                  <div className="pt-2 flex items-center gap-2 text-xs font-bold text-[#06B6D4] group-hover:translate-x-2 transition-transform">
-                    <span>Enter Atelier</span>
-                    <ChevronRight className="h-4 w-4" />
+                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                    <div>
+                      <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
+                        <span className="text-[#06B6D4] text-[10px] font-bold uppercase">{p.subCategory}</span>
+                        <div className="flex items-center gap-1 text-amber-400 font-medium">
+                          <Star className="h-3 w-3 fill-amber-400" />
+                          <span>{p.rating}</span>
+                          <span className="text-[#64748B] text-[11px]">({p.reviewsCount})</span>
+                        </div>
+                      </div>
+                      <h3 className="font-bold text-white text-sm group-hover:text-[#06B6D4] transition-colors line-clamp-1">
+                        {p.name}
+                      </h3>
+                      <p className="text-xs text-[#94A3B8] mt-1 line-clamp-2 leading-relaxed">
+                        {p.description}
+                      </p>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+                      <div>
+                        <span className="text-lg font-bold text-white">${p.price.toFixed(2)}</span>
+                        {p.originalPrice && (
+                          <span className="text-xs text-slate-500 line-through ml-2">
+                            ${p.originalPrice.toFixed(2)}
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => addToCart(p)}
+                        className="px-3.5 py-1.5 rounded-xl bg-[#06B6D4] text-slate-950 text-xs font-bold hover:bg-[#22D3EE] transition-all flex items-center gap-1.5 shadow-md shadow-cyan-500/10 active:scale-95"
+                      >
+                        <ShoppingBag className="h-3.5 w-3.5" />
+                        <span>Add</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+
         </main>
       )}
 
       {/* ========================================================
-          PAGE 3: CHECKOUT & DELIVERY PORTAL
+          PAGE 2: CHECKOUT & DELIVERY PORTAL
          ======================================================== */}
       {currentPage === 'checkout' && (
         <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -477,7 +475,7 @@ export default function App() {
               <CheckCircle2 className="h-16 w-16 text-cyan-400 mx-auto animate-bounce" />
               <h2 className="text-2xl font-bold text-white">Order Placed Successfully!</h2>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Thank you for choosing StyleSense. Your tracking confirmation details have been dispatched.
+                Thank you for choosing StyleSense. Your dispatch tracking notification will arrive via SMS & Email.
               </p>
               <button 
                 onClick={() => { setOrderSuccess(false); setCurrentPage('shop'); }}
@@ -488,7 +486,6 @@ export default function App() {
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Form Details */}
               <form onSubmit={handlePlaceOrder} className="lg:col-span-2 space-y-6 bg-slate-900/60 border border-slate-800 p-8 rounded-3xl">
                 <h3 className="text-lg font-bold text-white pb-3 border-b border-slate-800 flex items-center gap-2">
                   <Truck className="h-5 w-5 text-cyan-400" /> Delivery Details
@@ -526,7 +523,7 @@ export default function App() {
                 </div>
 
                 <h3 className="text-lg font-bold text-white pt-4 pb-3 border-b border-slate-800 flex items-center gap-2">
-                  <CreditCard className="h-5 w-5 text-cyan-400" /> Payment Method
+                  <CreditCard className="h-5 w-5 text-cyan-400" /> Secure Payment
                 </h3>
 
                 <div className="space-y-3 text-xs">
@@ -552,7 +549,7 @@ export default function App() {
                 </button>
               </form>
 
-              {/* Order Summary & Coupon */}
+              {/* Summary */}
               <div className="space-y-6">
                 <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl space-y-4">
                   <h4 className="font-bold text-white text-sm pb-2 border-b border-slate-800">Order Summary</h4>
@@ -591,7 +588,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Coupon Box */}
                 <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl space-y-3 text-xs">
                   <label className="block text-slate-300 font-semibold">Enter Promo Code</label>
                   <div className="flex gap-2">
@@ -614,13 +610,13 @@ export default function App() {
       )}
 
       {/* ========================================================
-          PAGE 4: FAQ (FREQUENTLY ASKED QUESTIONS) ACCORDION
+          PAGE 3: FAQ ACCORDION
          ======================================================== */}
       {currentPage === 'faq' && (
         <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
           <div className="text-center space-y-3">
             <h2 className="text-3xl font-extrabold text-white">Frequently Asked Questions</h2>
-            <p className="text-xs text-slate-400">Answers to common inquiries regarding delivery, sizing, and our AI stylists.</p>
+            <p className="text-xs text-slate-400">Answers to common questions about sizes, deliveries, and our AI stylists.</p>
           </div>
 
           <div className="space-y-4">
@@ -651,7 +647,7 @@ export default function App() {
       )}
 
       {/* ========================================================
-          PAGE 5: CONTACT US & CUSTOMER CARE
+          PAGE 4: CONTACT US
          ======================================================== */}
       {currentPage === 'contact' && (
         <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
@@ -709,7 +705,7 @@ export default function App() {
       )}
 
       {/* ========================================================
-          PAGE 6: STORE ADMIN DASHBOARD & INVENTORY
+          PAGE 5: STORE ADMIN DASHBOARD & INVENTORY
          ======================================================== */}
       {currentPage === 'admin' && (
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -725,7 +721,6 @@ export default function App() {
             </button>
           </div>
 
-          {/* Metric Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="p-6 bg-slate-900/70 border border-slate-800 rounded-2xl space-y-2">
               <span className="text-xs text-slate-400 flex items-center gap-1.5"><Package className="h-4 w-4 text-cyan-400" /> Total Orders</span>
@@ -741,7 +736,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Recent Orders Table */}
           <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 space-y-4">
             <h3 className="font-bold text-white text-sm">Recent Customer Orders</h3>
             <div className="overflow-x-auto">
@@ -765,70 +759,6 @@ export default function App() {
                       <td className="py-3.5">{ord.date}</td>
                       <td className="py-3.5"><span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">{ord.status}</span></td>
                       <td className="py-3.5 text-right font-bold text-white">${ord.price.toFixed(2)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Live Product Inventory Table */}
-          <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-white text-sm">Products Catalog Control</h3>
-              <button 
-                onClick={() => {
-                  const name = prompt('Enter Product Name:');
-                  const price = parseFloat(prompt('Enter Price ($):') || '50');
-                  if (name) {
-                    setProductsList([{
-                      id: `custom-${Date.now()}`,
-                      name,
-                      department: 'women',
-                      subCategory: 'Evening Dresses',
-                      price,
-                      rating: 5.0,
-                      reviewsCount: 1,
-                      badge: 'New',
-                      image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800',
-                      description: 'Custom added catalog piece.',
-                      sizes: ['S', 'M', 'L']
-                    }, ...productsList]);
-                  }
-                }}
-                className="px-3.5 py-1.5 bg-[#06B6D4] text-slate-950 font-bold rounded-xl text-xs flex items-center gap-1.5"
-              >
-                <Plus className="h-3.5 w-3.5" /> Add Product
-              </button>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="border-b border-slate-800 text-slate-400 pb-2">
-                    <th className="pb-3 font-semibold">Product</th>
-                    <th className="pb-3 font-semibold">Department</th>
-                    <th className="pb-3 font-semibold">Price</th>
-                    <th className="pb-3 font-semibold text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60">
-                  {productsList.map(prod => (
-                    <tr key={prod.id} className="text-slate-300">
-                      <td className="py-3 flex items-center gap-3">
-                        <img src={prod.image} alt={prod.name} className="h-10 w-10 rounded-lg object-cover" />
-                        <span className="font-semibold text-white">{prod.name}</span>
-                      </td>
-                      <td className="py-3 capitalize text-cyan-400">{prod.department} ({prod.subCategory})</td>
-                      <td className="py-3 font-bold text-white">${prod.price.toFixed(2)}</td>
-                      <td className="py-3 text-right">
-                        <button 
-                          onClick={() => setProductsList(productsList.filter(p => p.id !== prod.id))}
-                          className="px-2.5 py-1 bg-rose-500/20 text-rose-400 rounded-lg border border-rose-500/30 hover:bg-rose-500/30 text-[11px]"
-                        >
-                          Delete
-                        </button>
-                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -868,9 +798,9 @@ export default function App() {
                           <h4 className="text-xs font-semibold text-white truncate">{item.name}</h4>
                           <p className="text-xs text-[#06B6D4] font-bold mt-0.5">${item.price.toFixed(2)}</p>
                           <div className="flex items-center gap-2 mt-2">
-                            <button onClick={() => updateQty(item.id, -1)} className="px-2 py-0.5 bg-slate-800 text-white rounded text-xs">-</button>
+                            <button onClick={() => updateQty(item.id, -1)} className="px-2 py-0.5 bg-slate-800 text-white rounded text-xs hover:bg-[#334155]">-</button>
                             <span className="text-xs font-bold">{item.quantity}</span>
-                            <button onClick={() => updateQty(item.id, 1)} className="px-2 py-0.5 bg-slate-800 text-white rounded text-xs">+</button>
+                            <button onClick={() => updateQty(item.id, 1)} className="px-2 py-0.5 bg-slate-800 text-white rounded text-xs hover:bg-[#334155]">+</button>
                           </div>
                         </div>
                         <button onClick={() => updateQty(item.id, -item.quantity)} className="p-2 text-rose-400 hover:text-rose-300">
@@ -911,7 +841,7 @@ export default function App() {
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-[#06B6D4]" />
-                <h3 className="font-bold text-base text-white">AI Bespoke Size Atelier</h3>
+                <h3 className="font-bold text-white text-base">AI Bespoke Size Atelier</h3>
               </div>
               <button onClick={() => setIsAiModalOpen(false)} className="text-slate-400 hover:text-white"><X className="h-5 w-5" /></button>
             </div>
@@ -1008,7 +938,6 @@ export default function App() {
       <footer className="bg-slate-950 border-t border-slate-800/80 pt-16 pb-12 mt-16 text-xs text-slate-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
           
-          {/* Brand Col */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-[#06B6D4] to-[#0284C7] flex items-center justify-center">
@@ -1017,40 +946,37 @@ export default function App() {
               <span className="text-lg font-black tracking-tight text-white">StyleSense Studio</span>
             </div>
             <p className="text-slate-400 leading-relaxed max-w-sm">
-              Next-generation AI-powered e-commerce platform engineered with neural sizing prediction, intelligent virtual stylist concierge, and curated luxury fashion.
+              Next-generation AI-powered fashion platform engineered with neural sizing prediction, intelligent virtual stylist concierge, and curated luxury fashion.
             </p>
             <div className="text-[11px] text-slate-500">
               © 2026 StyleSense Studio. All rights reserved.
             </div>
           </div>
 
-          {/* Explore Links */}
           <div className="space-y-3">
             <h4 className="text-white font-bold uppercase tracking-wider text-[11px]">Explore</h4>
             <ul className="space-y-2">
-              <li><button onClick={() => { setCurrentPage('shop'); setActiveDept('all'); }} className="hover:text-cyan-400">New Arrivals</button></li>
-              <li><button onClick={() => { setCurrentPage('collections'); }} className="hover:text-cyan-400">All Collections</button></li>
-              <li><button onClick={() => { setCurrentPage('shop'); setSelectedSub('Trending'); }} className="hover:text-cyan-400">Trending Styles</button></li>
+              <li><button onClick={() => handleSelectDepartment('women')} className="hover:text-cyan-400">Women Dresses & Tops</button></li>
+              <li><button onClick={() => handleSelectDepartment('men')} className="hover:text-cyan-400">Men Essentials</button></li>
+              <li><button onClick={() => handleSelectDepartment('kids')} className="hover:text-cyan-400">Kids Atelier</button></li>
               <li><button onClick={() => setIsAiModalOpen(true)} className="hover:text-cyan-400">AI Size Predictor</button></li>
             </ul>
           </div>
 
-          {/* Categories Links */}
           <div className="space-y-3">
-            <h4 className="text-white font-bold uppercase tracking-wider text-[11px]">Departments</h4>
+            <h4 className="text-white font-bold uppercase tracking-wider text-[11px]">Help & Info</h4>
             <ul className="space-y-2">
-              <li><button onClick={() => { setCurrentPage('shop'); setActiveDept('women'); }} className="hover:text-cyan-400">Women Haute Couture</button></li>
-              <li><button onClick={() => { setCurrentPage('shop'); setActiveDept('men'); }} className="hover:text-cyan-400">Men Essentials</button></li>
-              <li><button onClick={() => { setCurrentPage('shop'); setActiveDept('shoes'); }} className="hover:text-cyan-400">Luxury Footwear</button></li>
-              <li><button onClick={() => { setCurrentPage('shop'); setActiveDept('cosmetics'); }} className="hover:text-cyan-400">Radiant Skincare</button></li>
+              <li><button onClick={() => setCurrentPage('faq')} className="hover:text-cyan-400">Frequently Asked Questions</button></li>
+              <li><button onClick={() => setCurrentPage('contact')} className="hover:text-cyan-400">Contact Support</button></li>
+              <li><button onClick={() => setCurrentPage('checkout')} className="hover:text-cyan-400">Delivery & Checkout</button></li>
+              <li><button onClick={() => setCurrentPage('admin')} className="hover:text-cyan-400">Store Admin</button></li>
             </ul>
           </div>
 
-          {/* Newsletter Box */}
           <div className="space-y-3">
             <h4 className="text-white font-bold uppercase tracking-wider text-[11px]">Stay Updated</h4>
             <p className="text-[11px] text-slate-400">Get the latest fashion drop alerts and private VIP discount codes.</p>
-            <form onSubmit={(e) => { e.preventDefault(); alert('Subscribed successfully to StyleSense VIP drop list!'); }} className="space-y-2">
+            <form onSubmit={(e) => { e.preventDefault(); alert('Subscribed to StyleSense drop list!'); }} className="space-y-2">
               <input required type="email" placeholder="Enter your email address" className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500 text-xs" />
               <button type="submit" className="w-full py-2 bg-[#06B6D4] text-slate-950 font-bold rounded-xl hover:bg-[#22D3EE] transition-all text-xs">
                 Subscribe
