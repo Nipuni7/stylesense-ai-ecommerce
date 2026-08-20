@@ -25,20 +25,28 @@ import {
   Users,
   DollarSign,
   Plus,
-  Headphones
+  Headphones,
+  Heart,
+  Eye,
+  Check,
+  Compass
 } from 'lucide-react';
 import { DEPARTMENTS, SUB_CATEGORIES, PRODUCTS as INITIAL_PRODUCTS } from './data/products';
 
 export default function App() {
-  // Navigation: 'shop' | 'checkout' | 'faq' | 'contact' | 'admin'
+  // Navigation: 'shop' | 'wishlist' | 'track' | 'checkout' | 'faq' | 'contact' | 'admin'
   const [currentPage, setCurrentPage] = useState('shop');
-  const [activeDept, setActiveDept] = useState('women'); // Defaulted to Women
+  const [activeDept, setActiveDept] = useState('women');
   const [selectedSub, setSelectedSub] = useState('All Women');
   const [searchQuery, setSearchQuery] = useState('');
   
   // Store & Product State
   const [productsList, setProductsList] = useState(INITIAL_PRODUCTS);
   const [cart, setCart] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null); // Product Detail Modal
+  
+  // Modal States
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -48,12 +56,27 @@ export default function App() {
   const [discount, setDiscount] = useState(0);
   const [couponApplied, setCouponApplied] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [lastPlacedOrderId, setLastPlacedOrderId] = useState(null);
 
-  // Admin Panel State
+  // Form States (Clean Controlled Placeholders)
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
+    email: '',
+    address: '',
+    postal: '',
+    city: '',
+    cardNumber: '',
+    expDate: '',
+    cvc: ''
+  });
+
+  // Admin & Orders State
   const [ordersList, setOrdersList] = useState([
-    { id: 'ORD-9021', email: 'contact@stylesense.studio', name: 'Senuka Chandunu', address: '123, Highlevel Road, Maharagama', postal: '69696', phone: '0771234567', date: '2026-08-19', status: 'Delivered', price: 145.00 },
-    { id: 'ORD-9022', email: 'theekshana@stylesense.studio', name: 'P.G.N. Theekshana', address: 'No.45, Galle Road, Colombo', postal: '00300', phone: '0719876543', date: '2026-08-20', status: 'Processing', price: 210.00 },
-    { id: 'ORD-9023', email: 'saman@yahoo.com', name: 'Saman Kumara', address: 'No.18, Kandy Road, Kiribathgoda', postal: '11600', phone: '0776543456', date: '2026-08-20', status: 'Shipped', price: 82.00 }
+    { id: 'ORD-9021', email: 'customer1@example.com', name: 'Alexander Wright', address: '123 High Street', postal: '10001', phone: '+1 555-0192', date: '2026-08-19', status: 'Delivered', price: 145.00 },
+    { id: 'ORD-9022', email: 'customer2@example.com', name: 'Sophia Miller', address: '45 Park Avenue', postal: '90210', phone: '+1 555-0144', date: '2026-08-20', status: 'Shipped', price: 210.00 },
+    { id: 'ORD-9023', email: 'customer3@example.com', name: 'Liam Davies', address: '18 Victoria Road', postal: 'SW1A', phone: '+44 20 7946', date: '2026-08-20', status: 'Processing', price: 82.00 }
   ]);
 
   // AI Fit State
@@ -64,14 +87,14 @@ export default function App() {
 
   // AI Chatbot State
   const [chatMessages, setChatMessages] = useState([
-    { sender: 'bot', text: 'Hello! I am your StyleSense AI Stylist. Ask me about outfits, size predictions, or curated department picks!' }
+    { sender: 'bot', text: 'Hello! I am your StyleSense AI Stylist. Ask me about outfits, size predictions, or style recommendations!' }
   ]);
   const [inputMessage, setInputMessage] = useState('');
 
   // FAQ Accordion Toggle
   const [openFaq, setOpenFaq] = useState(null);
 
-  // Click Department Box Handler (Smooth scroll directly to products)
+  // Department Selection Handler
   const handleSelectDepartment = (deptId) => {
     setActiveDept(deptId);
     setSelectedSub(SUB_CATEGORIES[deptId] ? SUB_CATEGORIES[deptId][0] : 'All');
@@ -82,7 +105,7 @@ export default function App() {
     }
   };
 
-  // Filter Products strictly by active department
+  // Filter Products
   const filteredProducts = productsList.filter((p) => {
     const matchesDept = p.department === activeDept;
     const matchesSub = selectedSub.startsWith('All') || p.subCategory === selectedSub;
@@ -92,14 +115,25 @@ export default function App() {
     return matchesDept && matchesSub && matchesSearch;
   });
 
+  // Wishlist Toggle
+  const toggleWishlist = (product) => {
+    setWishlist(prev => {
+      const exists = prev.find(item => item.id === product.id);
+      if (exists) {
+        return prev.filter(item => item.id !== product.id);
+      }
+      return [...prev, product];
+    });
+  };
+
   // Cart Handlers
-  const addToCart = (product) => {
+  const addToCart = (product, chosenSize) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
       if (existing) {
         return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
       }
-      return [...prev, { ...product, quantity: 1, selectedSize: product.sizes[0] }];
+      return [...prev, { ...product, quantity: 1, selectedSize: chosenSize || product.sizes[0] }];
     });
     setIsCartOpen(true);
   };
@@ -134,18 +168,20 @@ export default function App() {
       alert('Your cart is empty!');
       return;
     }
+    const orderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
     const newOrder = {
-      id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
-      email: e.target.email.value,
-      name: `${e.target.firstName.value} ${e.target.lastName.value}`,
-      address: e.target.address.value,
-      postal: e.target.postal.value,
-      phone: e.target.phone.value,
+      id: orderId,
+      email: formData.email,
+      name: `${formData.firstName} ${formData.lastName}`,
+      address: formData.address,
+      postal: formData.postal,
+      phone: formData.phone,
       date: '2026-08-20',
       status: 'Placed',
       price: finalTotal
     };
     setOrdersList([newOrder, ...ordersList]);
+    setLastPlacedOrderId(orderId);
     setOrderSuccess(true);
     setCart([]);
   };
@@ -168,7 +204,7 @@ export default function App() {
     setRecommendation({
       size,
       confidence: '98%',
-      reason: `Calibrated for ${userHeight}cm & ${w}kg in a modern ${fitPreference} fit.`
+      reason: `Calibrated for ${userHeight}cm & ${w}kg in a modern ${fitPreference} cut.`
     });
   };
 
@@ -199,7 +235,7 @@ export default function App() {
       {/* 1. TOP PROMO BANNER */}
       <div className="bg-gradient-to-r from-[#0891B2] via-[#06B6D4] to-[#0D9488] py-2 px-4 text-center text-xs font-bold tracking-wide text-slate-950 flex items-center justify-center gap-2">
         <Tag className="h-3.5 w-3.5 fill-slate-950" />
-        <span>Use code <strong>STYLESENSE20</strong> for 20% OFF across Women, Men, Kids & Footwear collections!</span>
+        <span>Use code <strong>STYLESENSE20</strong> for 20% OFF across all collections! Free Global Express Shipping</span>
       </div>
 
       {/* 2. FLOATING PROFESSIONAL NAVBAR */}
@@ -217,21 +253,33 @@ export default function App() {
               </span>
             </div>
 
-            {/* Nav Links (Direct Department Tabs) */}
-            <nav className="hidden md:flex items-center gap-7 text-xs font-semibold text-slate-300">
+            {/* Nav Links */}
+            <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-300">
               <button onClick={() => handleSelectDepartment('women')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'shop' && activeDept === 'women' ? 'text-[#06B6D4] font-bold' : ''}`}>Women</button>
               <button onClick={() => handleSelectDepartment('men')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'shop' && activeDept === 'men' ? 'text-[#06B6D4] font-bold' : ''}`}>Men</button>
               <button onClick={() => handleSelectDepartment('kids')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'shop' && activeDept === 'kids' ? 'text-[#06B6D4] font-bold' : ''}`}>Kids</button>
               <button onClick={() => handleSelectDepartment('shoes')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'shop' && activeDept === 'shoes' ? 'text-[#06B6D4] font-bold' : ''}`}>Shoes</button>
-              <button onClick={() => handleSelectDepartment('handbags')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'shop' && activeDept === 'handbags' ? 'text-[#06B6D4] font-bold' : ''}`}>Handbags</button>
-              <button onClick={() => handleSelectDepartment('cosmetics')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'shop' && activeDept === 'cosmetics' ? 'text-[#06B6D4] font-bold' : ''}`}>Cosmetics</button>
-              <button onClick={() => setCurrentPage('contact')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'contact' ? 'text-[#06B6D4] font-bold' : ''}`}>Contact</button>
+              <button onClick={() => handleSelectDepartment('handbags')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'shop' && activeDept === 'handbags' ? 'text-[#06B6D4] font-bold' : ''}`}>Bags</button>
+              <button onClick={() => handleSelectDepartment('cosmetics')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'shop' && activeDept === 'cosmetics' ? 'text-[#06B6D4] font-bold' : ''}`}>Beauty</button>
+              <button onClick={() => setCurrentPage('track')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'track' ? 'text-[#06B6D4] font-bold' : ''}`}>Track Order</button>
               <button onClick={() => setCurrentPage('faq')} className={`hover:text-[#06B6D4] transition-colors ${currentPage === 'faq' ? 'text-[#06B6D4] font-bold' : ''}`}>FAQ</button>
               <button onClick={() => setCurrentPage('admin')} className={`px-3 py-1 rounded-full border border-cyan-500/30 text-[#06B6D4] hover:bg-cyan-500/10 transition-colors ${currentPage === 'admin' ? 'bg-cyan-500/20 font-bold' : ''}`}>Admin</button>
             </nav>
 
             {/* Quick Actions */}
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => setCurrentPage('wishlist')}
+                className={`relative p-2.5 rounded-full border transition-all ${currentPage === 'wishlist' ? 'bg-rose-500/20 border-rose-500 text-rose-400' : 'bg-slate-800 border-slate-700 text-slate-300 hover:text-rose-400'}`}
+              >
+                <Heart className="h-4 w-4" />
+                {wishlist.length > 0 && (
+                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-rose-500 text-white font-bold text-[9px] flex items-center justify-center">
+                    {wishlist.length}
+                  </span>
+                )}
+              </button>
+
               <button
                 onClick={() => setIsAiModalOpen(true)}
                 className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-xs font-semibold text-cyan-400 border border-cyan-500/30 hover:border-cyan-400 transition-all"
@@ -258,16 +306,16 @@ export default function App() {
       </header>
 
       {/* ========================================================
-          PAGE 1: MAIN SHOP WITH DRESS HERO & DIRECT CATEGORY BOXES
+          PAGE 1: MAIN SHOP WITH DRESS HERO & CATEGORY BOXES
          ======================================================== */}
       {currentPage === 'shop' && (
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
           
-          {/* HERO BANNER SECTION */}
+          {/* HERO BANNER */}
           <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-900 via-[#0A1526] to-slate-900 border border-slate-800 p-8 sm:p-14 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="space-y-5 max-w-xl">
               <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-xs font-semibold text-[#06B6D4] uppercase tracking-wider">
-                <Sparkles className="h-3.5 w-3.5" /> Haute Couture & Modern Atelier 2026
+                <Sparkles className="h-3.5 w-3.5" /> Haute Couture & AI Atelier 2026
               </span>
               <h1 className="text-4xl sm:text-6xl font-black text-white leading-tight tracking-tight">
                 Elevate Your Style <br />
@@ -294,7 +342,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* High-Fashion Silk Dress Hero Image */}
             <div className="relative w-full max-w-md aspect-[4/5] flex items-center justify-center">
               <div className="absolute inset-0 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
               <img 
@@ -305,9 +352,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* ========================================================
-              LARGE VISUAL DEPARTMENT BOXES
-             ======================================================== */}
+          {/* LARGE VISUAL DEPARTMENT BOXES */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
@@ -352,9 +397,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* ========================================================
-              DETAILED PRODUCT CATALOG (DIRECT ACTIVE DEPARTMENT)
-             ======================================================== */}
+          {/* PRODUCT CATALOG */}
           <div id="catalog-section" className="space-y-6 pt-6 border-t border-slate-800">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
@@ -366,7 +409,6 @@ export default function App() {
                 </p>
               </div>
 
-              {/* Search Bar */}
               <div className="relative max-w-xs w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
                 <input 
@@ -379,7 +421,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Sub-Category Pills for Active Department */}
+            {/* Sub-Category Filter Pills */}
             <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
               {(SUB_CATEGORIES[activeDept] || ['All']).map((sub) => (
                 <button
@@ -396,64 +438,89 @@ export default function App() {
               ))}
             </div>
 
-            {/* Product Cards Grid */}
+            {/* Product Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filteredProducts.map((p) => (
-                <div 
-                  key={p.id}
-                  className="group relative bg-slate-900/60 rounded-2xl border border-slate-800 overflow-hidden hover:border-[#06B6D4]/60 transition-all duration-300 flex flex-col justify-between hover:shadow-2xl hover:shadow-cyan-500/5"
-                >
-                  <div className="relative aspect-[4/5] overflow-hidden bg-slate-950">
-                    <img
-                      src={p.image}
-                      alt={p.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    {p.badge && (
-                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#050B14]/85 backdrop-blur-md text-[#06B6D4] border border-cyan-500/30 font-mono">
-                        {p.badge}
-                      </span>
-                    )}
-                  </div>
+              {filteredProducts.map((p) => {
+                const isWishlisted = wishlist.some(w => w.id === p.id);
+                return (
+                  <div 
+                    key={p.id}
+                    className="group relative bg-slate-900/60 rounded-2xl border border-slate-800 overflow-hidden hover:border-[#06B6D4]/60 transition-all duration-300 flex flex-col justify-between hover:shadow-2xl hover:shadow-cyan-500/5"
+                  >
+                    <div className="relative aspect-[4/5] overflow-hidden bg-slate-950">
+                      <img
+                        src={p.image}
+                        alt={p.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 cursor-pointer"
+                        onClick={() => setSelectedProduct(p)}
+                      />
+                      {p.badge && (
+                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#050B14]/85 backdrop-blur-md text-[#06B6D4] border border-cyan-500/30 font-mono">
+                          {p.badge}
+                        </span>
+                      )}
 
-                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                    <div>
-                      <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
-                        <span className="text-[#06B6D4] text-[10px] font-bold uppercase">{p.subCategory}</span>
-                        <div className="flex items-center gap-1 text-amber-400 font-medium">
-                          <Star className="h-3 w-3 fill-amber-400" />
-                          <span>{p.rating}</span>
-                          <span className="text-[#64748B] text-[11px]">({p.reviewsCount})</span>
-                        </div>
-                      </div>
-                      <h3 className="font-bold text-white text-sm group-hover:text-[#06B6D4] transition-colors line-clamp-1">
-                        {p.name}
-                      </h3>
-                      <p className="text-xs text-[#94A3B8] mt-1 line-clamp-2 leading-relaxed">
-                        {p.description}
-                      </p>
-                    </div>
-
-                    <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
-                      <div>
-                        <span className="text-lg font-bold text-white">${p.price.toFixed(2)}</span>
-                        {p.originalPrice && (
-                          <span className="text-xs text-slate-500 line-through ml-2">
-                            ${p.originalPrice.toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => addToCart(p)}
-                        className="px-3.5 py-1.5 rounded-xl bg-[#06B6D4] text-slate-950 text-xs font-bold hover:bg-[#22D3EE] transition-all flex items-center gap-1.5 shadow-md shadow-cyan-500/10 active:scale-95"
+                      {/* Wishlist Button */}
+                      <button 
+                        onClick={() => toggleWishlist(p)}
+                        className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all ${
+                          isWishlisted ? 'bg-rose-500 text-white' : 'bg-slate-950/70 text-slate-300 hover:text-rose-400'
+                        }`}
                       >
-                        <ShoppingBag className="h-3.5 w-3.5" />
-                        <span>Add</span>
+                        <Heart className="h-3.5 w-3.5 fill-current" />
+                      </button>
+
+                      {/* Quick View Overlay Button */}
+                      <button 
+                        onClick={() => setSelectedProduct(p)}
+                        className="absolute bottom-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-slate-950/80 backdrop-blur-md border border-slate-700 text-xs font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5"
+                      >
+                        <Eye className="h-3.5 w-3.5 text-cyan-400" /> Quick View
                       </button>
                     </div>
+
+                    <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
+                          <span className="text-[#06B6D4] text-[10px] font-bold uppercase">{p.subCategory}</span>
+                          <div className="flex items-center gap-1 text-amber-400 font-medium">
+                            <Star className="h-3 w-3 fill-amber-400" />
+                            <span>{p.rating}</span>
+                            <span className="text-[#64748B] text-[11px]">({p.reviewsCount})</span>
+                          </div>
+                        </div>
+                        <h3 
+                          onClick={() => setSelectedProduct(p)}
+                          className="font-bold text-white text-sm group-hover:text-[#06B6D4] transition-colors line-clamp-1 cursor-pointer"
+                        >
+                          {p.name}
+                        </h3>
+                        <p className="text-xs text-[#94A3B8] mt-1 line-clamp-2 leading-relaxed">
+                          {p.description}
+                        </p>
+                      </div>
+
+                      <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+                        <div>
+                          <span className="text-lg font-bold text-white">${p.price.toFixed(2)}</span>
+                          {p.originalPrice && (
+                            <span className="text-xs text-slate-500 line-through ml-2">
+                              ${p.originalPrice.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => addToCart(p)}
+                          className="px-3.5 py-1.5 rounded-xl bg-[#06B6D4] text-slate-950 text-xs font-bold hover:bg-[#22D3EE] transition-all flex items-center gap-1.5 shadow-md shadow-cyan-500/10 active:scale-95"
+                        >
+                          <ShoppingBag className="h-3.5 w-3.5" />
+                          <span>Add</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -461,7 +528,108 @@ export default function App() {
       )}
 
       {/* ========================================================
-          PAGE 2: CHECKOUT & DELIVERY PORTAL
+          PAGE 2: DEDICATED WISHLIST VIEW
+         ======================================================== */}
+      {currentPage === 'wishlist' && (
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+            <div>
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <Heart className="h-6 w-6 text-rose-500 fill-rose-500" /> Saved Items & Wishlist
+              </h2>
+              <p className="text-xs text-slate-400">Manage your favorite curated designer pieces.</p>
+            </div>
+            <button onClick={() => setCurrentPage('shop')} className="px-4 py-2 bg-slate-800 text-xs font-semibold rounded-xl text-slate-300 hover:text-white">
+              Back to Store
+            </button>
+          </div>
+
+          {wishlist.length === 0 ? (
+            <div className="text-center py-24 bg-slate-900/40 rounded-3xl border border-slate-800 space-y-4">
+              <Heart className="h-12 w-12 text-slate-600 mx-auto" />
+              <p className="text-slate-400 text-sm">Your wishlist is currently empty.</p>
+              <button onClick={() => setCurrentPage('shop')} className="px-5 py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs">
+                Explore Collections
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {wishlist.map(p => (
+                <div key={p.id} className="bg-slate-900/60 rounded-2xl border border-slate-800 overflow-hidden flex flex-col justify-between">
+                  <img src={p.image} alt={p.name} className="aspect-[4/5] object-cover" />
+                  <div className="p-4 space-y-3">
+                    <h4 className="font-bold text-white text-xs truncate">{p.name}</h4>
+                    <p className="text-sm font-bold text-cyan-400">${p.price.toFixed(2)}</p>
+                    <div className="flex gap-2">
+                      <button onClick={() => addToCart(p)} className="flex-1 py-2 bg-cyan-500 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-1">
+                        <ShoppingBag className="h-3.5 w-3.5" /> Move to Cart
+                      </button>
+                      <button onClick={() => toggleWishlist(p)} className="p-2 bg-slate-800 text-rose-400 rounded-xl hover:bg-slate-700">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </main>
+      )}
+
+      {/* ========================================================
+          PAGE 3: LIVE ORDER TRACKING TIMELINE
+         ======================================================== */}
+      {currentPage === 'track' && (
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+          <div className="text-center space-y-3">
+            <h2 className="text-3xl font-extrabold text-white flex items-center justify-center gap-2">
+              <Compass className="h-7 w-7 text-cyan-400" /> Live Order Tracking
+            </h2>
+            <p className="text-xs text-slate-400">Track real-time shipment status and dispatch progress.</p>
+          </div>
+
+          <div className="bg-slate-900/70 border border-slate-800 rounded-3xl p-8 space-y-8 shadow-2xl">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-slate-800">
+              <div>
+                <span className="text-xs text-slate-400">Tracking Reference</span>
+                <p className="text-xl font-bold font-mono text-cyan-400">{lastPlacedOrderId || 'ORD-9022'}</p>
+              </div>
+              <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-xs font-bold text-cyan-400">
+                <Truck className="h-4 w-4" /> Status: In Transit
+              </div>
+            </div>
+
+            {/* 6-Stage Tracking Stepper */}
+            <div className="grid grid-cols-2 sm:grid-cols-6 gap-4 text-center">
+              {[
+                { stage: '1. Placed', done: true },
+                { stage: '2. Confirmed', done: true },
+                { stage: '3. Processing', done: true },
+                { stage: '4. Shipped', done: true },
+                { stage: '5. Out for Delivery', done: false },
+                { stage: '6. Delivered', done: false }
+              ].map((step, idx) => (
+                <div key={idx} className="space-y-2">
+                  <div className={`h-10 w-10 rounded-full mx-auto flex items-center justify-center border-2 ${
+                    step.done ? 'bg-cyan-500 border-cyan-400 text-slate-950' : 'bg-slate-950 border-slate-800 text-slate-600'
+                  }`}>
+                    {step.done ? <Check className="h-5 w-5 stroke-[3]" /> : idx + 1}
+                  </div>
+                  <span className={`text-[11px] font-semibold ${step.done ? 'text-white' : 'text-slate-500'}`}>{step.stage}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-400 flex items-center justify-between">
+              <span>Estimated Delivery Date:</span>
+              <strong className="text-cyan-400">Friday, August 21, 2026 (Priority Express)</strong>
+            </div>
+          </div>
+        </main>
+      )}
+
+      {/* ========================================================
+          PAGE 4: CLEAN CHECKOUT & PAYMENT PORTAL
          ======================================================== */}
       {currentPage === 'checkout' && (
         <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -477,50 +645,101 @@ export default function App() {
               <CheckCircle2 className="h-16 w-16 text-cyan-400 mx-auto animate-bounce" />
               <h2 className="text-2xl font-bold text-white">Order Placed Successfully!</h2>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Thank you for choosing StyleSense. Your dispatch tracking notification will arrive via SMS & Email.
+                Order ID <strong className="text-cyan-400 font-mono">{lastPlacedOrderId}</strong> has been logged to the system.
               </p>
-              <button 
-                onClick={() => { setOrderSuccess(false); setCurrentPage('shop'); }}
-                className="mt-4 px-6 py-3 rounded-xl bg-[#06B6D4] text-slate-950 font-bold text-xs"
-              >
-                Continue Shopping
-              </button>
+              <div className="pt-2 flex justify-center gap-3">
+                <button 
+                  onClick={() => setCurrentPage('track')}
+                  className="px-5 py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs"
+                >
+                  Track Shipment
+                </button>
+                <button 
+                  onClick={() => { setOrderSuccess(false); setCurrentPage('shop'); }}
+                  className="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-200 font-semibold text-xs"
+                >
+                  Continue Shopping
+                </button>
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <form onSubmit={handlePlaceOrder} className="lg:col-span-2 space-y-6 bg-slate-900/60 border border-slate-800 p-8 rounded-3xl">
                 <h3 className="text-lg font-bold text-white pb-3 border-b border-slate-800 flex items-center gap-2">
-                  <Truck className="h-5 w-5 text-cyan-400" /> Delivery Details
+                  <Truck className="h-5 w-5 text-cyan-400" /> Delivery Address
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   <div>
                     <label className="block text-slate-400 mb-1">First Name *</label>
-                    <input required name="firstName" defaultValue="Theekshana" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+                    <input 
+                      required 
+                      placeholder="e.g. John" 
+                      value={formData.firstName}
+                      onChange={e => setFormData({...formData, firstName: e.target.value})}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" 
+                    />
                   </div>
                   <div>
                     <label className="block text-slate-400 mb-1">Last Name *</label>
-                    <input required name="lastName" defaultValue="Gunathilaka" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+                    <input 
+                      required 
+                      placeholder="e.g. Doe" 
+                      value={formData.lastName}
+                      onChange={e => setFormData({...formData, lastName: e.target.value})}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" 
+                    />
                   </div>
                   <div>
                     <label className="block text-slate-400 mb-1">Phone Number *</label>
-                    <input required name="phone" defaultValue="0771234567" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+                    <input 
+                      required 
+                      placeholder="e.g. +94 77 123 4567" 
+                      value={formData.phone}
+                      onChange={e => setFormData({...formData, phone: e.target.value})}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" 
+                    />
                   </div>
                   <div>
                     <label className="block text-slate-400 mb-1">Email Address *</label>
-                    <input required type="email" name="email" defaultValue="theekshana@stylesense.studio" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+                    <input 
+                      required 
+                      type="email" 
+                      placeholder="e.g. user@example.com" 
+                      value={formData.email}
+                      onChange={e => setFormData({...formData, email: e.target.value})}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" 
+                    />
                   </div>
                   <div className="sm:col-span-2">
                     <label className="block text-slate-400 mb-1">Street Address *</label>
-                    <input required name="address" defaultValue="No 45, Baseline Road, Colombo 09" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+                    <input 
+                      required 
+                      placeholder="e.g. 123 Luxury Boulevard, Suite 400" 
+                      value={formData.address}
+                      onChange={e => setFormData({...formData, address: e.target.value})}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" 
+                    />
                   </div>
                   <div>
                     <label className="block text-slate-400 mb-1">Postal Code *</label>
-                    <input required name="postal" defaultValue="00900" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+                    <input 
+                      required 
+                      placeholder="e.g. 10001" 
+                      value={formData.postal}
+                      onChange={e => setFormData({...formData, postal: e.target.value})}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" 
+                    />
                   </div>
                   <div>
-                    <label className="block text-slate-400 mb-1">City / Region *</label>
-                    <input required name="city" defaultValue="Colombo" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+                    <label className="block text-slate-400 mb-1">City / State *</label>
+                    <input 
+                      required 
+                      placeholder="e.g. New York / Colombo" 
+                      value={formData.city}
+                      onChange={e => setFormData({...formData, city: e.target.value})}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" 
+                    />
                   </div>
                 </div>
 
@@ -534,15 +753,30 @@ export default function App() {
                       <input type="radio" defaultChecked name="pay" className="accent-cyan-500" />
                       <span className="font-semibold text-white">Credit / Debit Card (Visa, MasterCard)</span>
                     </div>
-                    <span className="text-[10px] text-cyan-400 font-mono">256-Bit Encrypted</span>
+                    <span className="text-[10px] text-cyan-400 font-mono">256-Bit SSL Encrypted</span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 pt-2">
                     <div className="col-span-2">
-                      <input placeholder="Card Number: 4242 •••• •••• 4242" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-xs" />
+                      <input 
+                        placeholder="Card Number: •••• •••• •••• ••••" 
+                        value={formData.cardNumber}
+                        onChange={e => setFormData({...formData, cardNumber: e.target.value})}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-xs focus:border-cyan-500" 
+                      />
                     </div>
-                    <input placeholder="MM / YY" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-xs" />
-                    <input placeholder="CVC / CVV" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-xs" />
+                    <input 
+                      placeholder="MM / YY" 
+                      value={formData.expDate}
+                      onChange={e => setFormData({...formData, expDate: e.target.value})}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-xs focus:border-cyan-500" 
+                    />
+                    <input 
+                      placeholder="CVC / CVV" 
+                      value={formData.cvc}
+                      onChange={e => setFormData({...formData, cvc: e.target.value})}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-xs focus:border-cyan-500" 
+                    />
                   </div>
                 </div>
 
@@ -551,7 +785,7 @@ export default function App() {
                 </button>
               </form>
 
-              {/* Summary */}
+              {/* Order Valuation Summary */}
               <div className="space-y-6">
                 <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl space-y-4">
                   <h4 className="font-bold text-white text-sm pb-2 border-b border-slate-800">Order Summary</h4>
@@ -612,22 +846,21 @@ export default function App() {
       )}
 
       {/* ========================================================
-          PAGE 3: FAQ ACCORDION
+          PAGE 5: FAQ & CONTACT
          ======================================================== */}
       {currentPage === 'faq' && (
         <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
           <div className="text-center space-y-3">
             <h2 className="text-3xl font-extrabold text-white">Frequently Asked Questions</h2>
-            <p className="text-xs text-slate-400">Answers to common questions about sizes, deliveries, and our AI stylists.</p>
+            <p className="text-xs text-slate-400">Everything you need to know about shipments, AI fitting, and returns.</p>
           </div>
 
           <div className="space-y-4">
             {[
-              { q: 'What are the delivery methods and dispatch times?', a: 'Standard Islandwide/Global Delivery takes 2-4 business days. Express Overnight Priority ships within 24 hours.' },
-              { q: 'How does the StyleSense AI Sizing Matcher work?', a: 'Our neural sizing matrix analyzes your height, weight distribution, and preferred silhouette cut (slim, regular, oversized) to yield a 98% accurate fit.' },
-              { q: 'Can I exchange or return an item?', a: 'Yes! We offer a 30-Day Hassle-Free Return and Exchange Guarantee on all non-damaged apparel and accessories.' },
-              { q: 'What payment methods are supported on StyleSense?', a: 'We accept all major Visa, MasterCard, and direct digital payments with 256-Bit SSL protection.' },
-              { q: 'How do I contact customer support?', a: 'Our concierge desk is operational 24/7 via live chatbot, or Monday-Friday 9am-5pm through our Contact Us portal.' }
+              { q: 'What are the delivery dispatch times?', a: 'Standard Delivery takes 2-4 business days. Priority Express Overnight delivers within 24 hours.' },
+              { q: 'How does the StyleSense AI Sizing Matrix work?', a: 'Our neural algorithm computes physical geometry against height, weight, and silhouette preference to deliver 98% sizing precision.' },
+              { q: 'What is the return policy?', a: 'We provide a 30-day hassle-free return and exchange policy on all non-damaged items.' },
+              { q: 'What payment options are accepted?', a: 'We accept all major Visa, Mastercard, American Express, and SSL encrypted bank payments.' }
             ].map((faq, idx) => (
               <div key={idx} className="bg-slate-900/70 border border-slate-800 rounded-2xl overflow-hidden transition-colors">
                 <button 
@@ -649,65 +882,7 @@ export default function App() {
       )}
 
       {/* ========================================================
-          PAGE 4: CONTACT US
-         ======================================================== */}
-      {currentPage === 'contact' && (
-        <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
-          <div className="text-center space-y-3">
-            <h2 className="text-3xl font-extrabold text-white">We’re Always Here to Help</h2>
-            <p className="text-xs text-slate-400">Reach out to our customer care team for order inquiries and personal styling assistance.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-slate-900/60 border border-slate-800 p-8 rounded-3xl space-y-6">
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Headphones className="h-5 w-5 text-cyan-400" /> Customer Support Center
-              </h3>
-              
-              <div className="space-y-4 text-xs text-slate-300">
-                <div className="flex items-center gap-3">
-                  <Clock className="h-4 w-4 text-cyan-400" />
-                  <span>Monday - Friday, 9:00 AM - 5:00 PM (UTC+05:30, Colombo)</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 text-cyan-400" />
-                  <span>concierge@stylesense.studio</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 text-cyan-400" />
-                  <span>+94 11 234 5678 / +94 77 987 6543</span>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-cyan-950/30 border border-cyan-500/30 text-xs text-cyan-300">
-                ⚡ Live Chatbot concierge available 24/7 at the bottom right corner.
-              </div>
-            </div>
-
-            <form onSubmit={(e) => { e.preventDefault(); alert('Your message has been sent to our concierge desk!'); }} className="bg-slate-900/60 border border-slate-800 p-8 rounded-3xl space-y-4 text-xs">
-              <h3 className="text-lg font-bold text-white">Send Us a Direct Message</h3>
-              <div>
-                <label className="block text-slate-400 mb-1">Your Full Name</label>
-                <input required placeholder="Theekshana Gunathilaka" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-cyan-500" />
-              </div>
-              <div>
-                <label className="block text-slate-400 mb-1">Your Email</label>
-                <input required type="email" placeholder="user@domain.com" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-cyan-500" />
-              </div>
-              <div>
-                <label className="block text-slate-400 mb-1">Message / Inquiry</label>
-                <textarea required rows="4" placeholder="How can our styling team help you?" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-cyan-500" />
-              </div>
-              <button type="submit" className="w-full py-3 bg-[#06B6D4] text-slate-950 font-bold rounded-xl hover:bg-[#22D3EE] transition-all">
-                Send Inquiry
-              </button>
-            </form>
-          </div>
-        </main>
-      )}
-
-      {/* ========================================================
-          PAGE 5: STORE ADMIN DASHBOARD & INVENTORY
+          PAGE 6: STORE ADMIN DASHBOARD & INVENTORY
          ======================================================== */}
       {currentPage === 'admin' && (
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -771,7 +946,63 @@ export default function App() {
       )}
 
       {/* ========================================================
-          SLIDE-OVER SHOPPING CART DRAWER
+          MODAL 1: PRODUCT DETAIL QUICK-VIEW MODAL
+         ======================================================== */}
+      {selectedProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-950/85 backdrop-blur-md" onClick={() => setSelectedProduct(null)} />
+          <div className="relative bg-[#0F172A] border border-cyan-500/30 rounded-3xl max-w-2xl w-full p-6 shadow-2xl overflow-hidden z-10 flex flex-col sm:flex-row gap-6">
+            <button onClick={() => setSelectedProduct(null)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-lg">
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="w-full sm:w-1/2 aspect-[4/5] rounded-2xl overflow-hidden bg-slate-950">
+              <img src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-full object-cover" />
+            </div>
+
+            <div className="w-full sm:w-1/2 space-y-4 flex flex-col justify-between">
+              <div className="space-y-2">
+                <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">{selectedProduct.subCategory}</span>
+                <h3 className="text-xl font-bold text-white leading-snug">{selectedProduct.name}</h3>
+                <div className="flex items-center gap-1.5 text-xs text-amber-400">
+                  <Star className="h-4 w-4 fill-amber-400" />
+                  <span className="font-bold">{selectedProduct.rating}</span>
+                  <span className="text-slate-500">({selectedProduct.reviewsCount} customer reviews)</span>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed pt-1">{selectedProduct.description}</p>
+                
+                {/* Available Sizes */}
+                <div className="pt-2">
+                  <span className="text-xs text-slate-300 font-semibold block mb-1.5">Available Sizes:</span>
+                  <div className="flex gap-2">
+                    {selectedProduct.sizes?.map(sz => (
+                      <span key={sz} className="px-3 py-1 rounded-lg bg-slate-950 border border-slate-800 text-xs font-semibold text-cyan-400">{sz}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl font-bold text-white">${selectedProduct.price.toFixed(2)}</span>
+                  <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
+                    <CheckCircle2 className="h-4 w-4" /> In Stock
+                  </span>
+                </div>
+                <button 
+                  onClick={() => { addToCart(selectedProduct); setSelectedProduct(null); }}
+                  className="w-full py-3.5 bg-cyan-500 text-slate-950 font-bold rounded-xl hover:bg-cyan-400 transition-all flex items-center justify-center gap-2 text-xs"
+                >
+                  <ShoppingBag className="h-4 w-4" /> Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL 2: SHOPPING CART DRAWER
          ======================================================== */}
       {isCartOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden">
@@ -834,7 +1065,7 @@ export default function App() {
       )}
 
       {/* ========================================================
-          AI BESPOKE SIZE RECOMMENDER MODAL
+          MODAL 3: AI BESPOKE SIZE RECOMMENDER
          ======================================================== */}
       {isAiModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -889,7 +1120,7 @@ export default function App() {
       )}
 
       {/* ========================================================
-          FLOATING AI VIRTUAL STYLIST CHATBOT
+          FLOATING AI CONCIERGE CHATBOT
          ======================================================== */}
       <button
         onClick={() => setIsChatOpen(!isChatOpen)}
@@ -935,7 +1166,7 @@ export default function App() {
       )}
 
       {/* ========================================================
-          PROFESSIONAL MULTI-COLUMN FOOTER
+          MULTI-COLUMN FOOTER
          ======================================================== */}
       <footer className="bg-slate-950 border-t border-slate-800/80 pt-16 pb-12 mt-16 text-xs text-slate-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
@@ -966,11 +1197,11 @@ export default function App() {
           </div>
 
           <div className="space-y-3">
-            <h4 className="text-white font-bold uppercase tracking-wider text-[11px]">Help & Info</h4>
+            <h4 className="text-white font-bold uppercase tracking-wider text-[11px]">Help & Tracking</h4>
             <ul className="space-y-2">
-              <li><button onClick={() => setCurrentPage('faq')} className="hover:text-cyan-400">Frequently Asked Questions</button></li>
-              <li><button onClick={() => setCurrentPage('contact')} className="hover:text-cyan-400">Contact Support</button></li>
-              <li><button onClick={() => setCurrentPage('checkout')} className="hover:text-cyan-400">Delivery & Checkout</button></li>
+              <li><button onClick={() => setCurrentPage('track')} className="hover:text-cyan-400">Track My Order</button></li>
+              <li><button onClick={() => setCurrentPage('wishlist')} className="hover:text-cyan-400">My Wishlist</button></li>
+              <li><button onClick={() => setCurrentPage('faq')} className="hover:text-cyan-400">FAQ & Returns</button></li>
               <li><button onClick={() => setCurrentPage('admin')} className="hover:text-cyan-400">Store Admin</button></li>
             </ul>
           </div>
