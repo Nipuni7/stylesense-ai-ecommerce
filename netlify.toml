@@ -1,9 +1,0 @@
-[build]
-  base = "stylesense-ai-ecommerce/frontend"
-  publish = "stylesense-ai-ecommerce/frontend/dist"
-  command = "npm run build"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
