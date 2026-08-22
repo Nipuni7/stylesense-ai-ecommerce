@@ -1,65 +1,64 @@
 import React, { useState } from 'react';
-import { Sparkles, Send, RefreshCw, CheckCircle2, ShoppingBag } from 'lucide-react';
+import { Sparkles, Send, RefreshCw, CheckCircle2 } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 
-const mockAIOutfits = {
-  gala: [
-    {
-      id: 3,
-      name: "Draped Organza Evening Slip",
-      category: "women",
-      type: "Occasionwear",
-      price: 42000,
-      aiMatch: 99,
-      image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80"
-    },
-    {
-      id: 1,
-      name: "Pleated Tussar Silk Trench",
-      category: "women",
-      type: "Outerwear",
-      price: 34500,
-      aiMatch: 98,
-      image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80"
-    }
-  ],
-  minimalist: [
-    {
-      id: 4,
-      name: "Structured Minimalist Poplin Shirt",
-      category: "men",
-      type: "Essentials",
-      price: 18500,
-      aiMatch: 95,
-      image: "https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?auto=format&fit=crop&w=800&q=80"
-    },
-    {
-      id: 5,
-      name: "Raw Hem Tailored Trousers",
-      category: "men",
-      type: "Tailoring",
-      price: 22000,
-      aiMatch: 93,
-      image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80"
-    }
-  ]
-};
+const initialItems = [
+  {
+    id: "3",
+    name: "Draped Organza Evening Slip",
+    category: "women",
+    type: "Occasionwear",
+    price: 42000,
+    aiMatch: 99,
+    image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    id: "1",
+    name: "Pleated Tussar Silk Trench",
+    category: "women",
+    type: "Outerwear",
+    price: 34500,
+    aiMatch: 98,
+    image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80"
+  }
+];
 
 const AIStylist = () => {
   const [inputQuery, setInputQuery] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [curatedResult, setCuratedResult] = useState(mockAIOutfits.gala);
-  const [selectedOccasion, setSelectedOccasion] = useState('Evening Gala');
+  const [curatedResult, setCuratedResult] = useState(initialItems);
+  const [stylingNote, setStylingNote] = useState("Curated ensemble tailored to your silhouette, tone, and occasion requirements.");
+  const [confidenceScore, setConfidenceScore] = useState(98.4);
 
-  const handleGenerate = (e) => {
+  const handleGenerate = async (e) => {
     e.preventDefault();
     if (!inputQuery.trim()) return;
-    
+
     setIsAnalyzing(true);
-    setTimeout(() => {
+    try {
+      // 1. Call Backend AI Endpoint
+      const aiResponse = await fetch('http://localhost:5000/api/ai/curate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: inputQuery })
+      });
+      const aiData = await aiResponse.json();
+
+      // 2. Fetch all products from Backend API
+      const prodResponse = await fetch('http://localhost:5000/api/products');
+      const allProducts = await prodResponse.json();
+
+      // 3. Filter products matching AI recommendation
+      const matched = allProducts.filter(p => aiData.recommendedIds?.includes(p.id));
+
+      setCuratedResult(matched.length > 0 ? matched : allProducts.slice(0, 2));
+      setStylingNote(aiData.stylingNote || "Algorithmic ensemble matched perfectly against current luxury silhouettes.");
+      setConfidenceScore(aiData.confidenceScore || 96.0);
+    } catch (err) {
+      console.error("Stylist API integration error:", err);
+    } finally {
       setIsAnalyzing(false);
-      setCuratedResult(inputQuery.toLowerCase().includes('men') || inputQuery.toLowerCase().includes('office') ? mockAIOutfits.minimalist : mockAIOutfits.gala);
-    }, 1200);
+    }
   };
 
   return (
@@ -80,7 +79,7 @@ const AIStylist = () => {
           </p>
         </div>
 
-        {/* Input Interactive Box */}
+        {/* Input Form */}
         <div className="bg-brand-charcoal text-brand-cream p-6 sm:p-8 rounded-sm shadow-xl border border-brand-sand/20 max-w-3xl mx-auto">
           <form onSubmit={handleGenerate} className="space-y-4">
             <label className="text-[10px] uppercase tracking-luxury text-brand-champagne block font-semibold">
@@ -91,7 +90,7 @@ const AIStylist = () => {
                 type="text"
                 value={inputQuery}
                 onChange={(e) => setInputQuery(e.target.value)}
-                placeholder="e.g., An elegant evening look under Rs. 80,000 for a Colombo art opening"
+                placeholder="e.g., Gala dinner look under Rs. 80,000 / කාර්යාලයට ගැලපෙන ඇඳුමක්"
                 className="w-full bg-transparent text-sm text-brand-cream placeholder-brand-muted focus:outline-none tracking-wide"
               />
               <button
@@ -113,14 +112,14 @@ const AIStylist = () => {
               </button>
             </div>
 
-            {/* Quick Filter Tags */}
+            {/* Quick Tag Suggestions */}
             <div className="flex flex-wrap items-center gap-2 pt-2 text-[10px] uppercase tracking-luxury text-brand-sand/80">
               <span className="text-brand-muted">Suggested:</span>
-              {['Formal Gala', 'Coastal Linen', 'Cocktail Event', 'Boardroom Executive'].map((tag) => (
+              {['Evening Gala', 'Executive Office Suit', 'Silk Slip Ensemble', 'Minimalist Linen'].map((tag) => (
                 <button
                   type="button"
                   key={tag}
-                  onClick={() => setInputQuery(`Curate a ${tag.toLowerCase()} ensemble with premium fabrics.`)}
+                  onClick={() => setInputQuery(`Curate a ${tag.toLowerCase()} outfit with luxury materials.`)}
                   className="px-2.5 py-1 rounded border border-brand-sand/20 hover:border-brand-champagne hover:text-brand-champagne transition-colors"
                 >
                   {tag}
@@ -130,20 +129,26 @@ const AIStylist = () => {
           </form>
         </div>
 
-        {/* Results Showcase */}
+        {/* AI Stylist Note */}
+        <div className="bg-brand-sand/30 border-l-2 border-brand-champagne p-4 max-w-3xl mx-auto text-xs text-brand-dark leading-relaxed font-sans">
+          <span className="font-semibold uppercase tracking-luxury text-[10px] text-brand-champagne block mb-1">Stylist Note:</span>
+          {stylingNote}
+        </div>
+
+        {/* Dynamic Results Grid */}
         <div className="pt-8 border-t border-brand-sand">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 pb-4 border-b border-brand-sand">
             <div>
               <span className="text-[10px] uppercase tracking-luxury text-brand-champagne font-semibold flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                Curated Output
+                Live Inventory Match
               </span>
               <h2 className="font-serif text-2xl uppercase tracking-tight text-brand-dark mt-1">
                 Selected Ensemble Pieces
               </h2>
             </div>
             <p className="text-xs uppercase tracking-luxury text-brand-muted mt-2 sm:mt-0">
-              Inventory Matching Confidence: 98.4%
+              Matching Confidence: {confidenceScore}%
             </p>
           </div>
 
