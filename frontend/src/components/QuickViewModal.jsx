@@ -1,94 +1,133 @@
 import React, { useState } from 'react';
-import { X, Star, Sparkles, ShoppingBag, Check } from 'lucide-react';
+import { X, Sparkles, ShoppingBag, Shield, Check, Ruler } from 'lucide-react';
 
-export default function QuickViewModal({ product, isOpen, onClose, onAddToCart }) {
+const QuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
   const [selectedSize, setSelectedSize] = useState('M');
   const [added, setAdded] = useState(false);
 
   if (!isOpen || !product) return null;
 
   const handleAdd = () => {
-    onAddToCart(product);
+    if (onAddToCart) {
+      onAddToCart({ ...product, selectedSize });
+    }
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   };
 
+  const sizes = ['XS', 'S', 'M', 'L', 'XL'];
+
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl relative grid grid-cols-1 md:grid-cols-2">
-        <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white z-10 p-1 cursor-pointer">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-charcoal/80 backdrop-blur-sm animate-fade-in">
+      <div className="bg-brand-cream border border-brand-sand w-full max-w-3xl rounded-sm shadow-2xl overflow-hidden relative grid grid-cols-1 md:grid-cols-2 max-h-[90vh] overflow-y-auto">
+        
+        {/* Close Button */}
+        <button 
+          onClick={onClose} 
+          className="absolute top-4 right-4 z-10 p-1.5 bg-brand-cream/80 rounded-full hover:text-brand-champagne transition-colors"
+        >
           <X className="w-5 h-5" />
         </button>
 
-        {/* Product Image */}
-        <div className="relative aspect-[4/5] md:aspect-auto bg-slate-800">
-          <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-          <div className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md text-xs text-indigo-300 border border-indigo-500/30 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-            {product.aiMatch}
+        {/* Product Imagery */}
+        <div className="relative h-72 md:h-full bg-brand-sand/20 min-h-[320px]">
+          <img 
+            src={product.image} 
+            alt={product.name} 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute bottom-3 left-3 bg-brand-charcoal/90 text-brand-cream text-[10px] uppercase tracking-luxury px-2.5 py-1 rounded-sm flex items-center gap-1.5 backdrop-blur-xs">
+            <Sparkles className="w-3 h-3 text-brand-champagne" />
+            <span>AI Match {product.aiMatch || 96}%</span>
           </div>
         </div>
 
-        {/* Details */}
-        <div className="p-6 flex flex-col justify-between">
-          <div>
-            <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">{product.category}</span>
-            <h3 className="text-xl font-bold text-white mt-1">{product.name}</h3>
+        {/* Product Details & Purchase Actions */}
+        <div className="p-6 md:p-8 flex flex-col justify-between space-y-6">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-[10px] uppercase tracking-luxury text-brand-champagne font-semibold">
+              <span>{product.category} | {product.type || 'Couture'}</span>
+              <span className="text-emerald-700 flex items-center gap-1">
+                <Shield className="w-3 h-3" /> In Stock
+              </span>
+            </div>
+            
+            <h2 className="font-serif text-2xl uppercase tracking-tight text-brand-dark leading-tight">
+              {product.name}
+            </h2>
+            
+            <p className="font-serif text-lg text-brand-dark font-semibold">
+              Rs. {product.price?.toLocaleString()}
+            </p>
 
-            <div className="flex items-center gap-2 mt-2">
-              <div className="flex text-amber-400">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
-                ))}
+            <p className="text-xs text-brand-muted font-sans leading-relaxed pt-1">
+              {product.description || "Crafted using heritage artisanal methods and premium sustainably-sourced fibers with bespoke architectural drape."}
+            </p>
+
+            {/* AI Size & Silhouette Guide */}
+            <div className="p-3 bg-brand-sand/20 border border-brand-sand/60 rounded-sm text-[11px] text-brand-dark space-y-1">
+              <div className="flex items-center gap-1.5 text-brand-champagne font-semibold uppercase tracking-luxury text-[9px]">
+                <Ruler className="w-3 h-3" />
+                <span>AI Fit Recommendation</span>
               </div>
-              <span className="text-xs text-slate-400">{product.rating} ({product.reviews} reviews)</span>
+              <p className="text-brand-muted leading-tight">
+                True to standard bespoke tailoring. Designed for an effortless, relaxed structure.
+              </p>
             </div>
 
-            <div className="text-2xl font-black text-white mt-4">${product.price.toFixed(2)}</div>
-
             {/* Size Selector */}
-            <div className="mt-5">
-              <span className="text-xs text-slate-300 font-medium block mb-2">Select Size</span>
+            <div className="pt-2">
+              <label className="block text-[10px] uppercase tracking-luxury text-brand-muted mb-2 font-semibold">
+                Select Tailored Size
+              </label>
               <div className="flex gap-2">
-                {['S', 'M', 'L', 'XL'].map((s) => (
+                {sizes.map((sz) => (
                   <button
-                    key={s}
-                    onClick={() => setSelectedSize(s)}
-                    className={`w-9 h-9 rounded-lg text-xs font-bold transition cursor-pointer ${
-                      selectedSize === s 
-                        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30' 
-                        : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700'
+                    key={sz}
+                    onClick={() => setSelectedSize(sz)}
+                    className={`w-9 h-9 text-xs uppercase tracking-luxury font-semibold border transition-all ${
+                      selectedSize === sz
+                        ? 'border-brand-dark bg-brand-dark text-brand-cream'
+                        : 'border-brand-sand hover:border-brand-muted text-brand-dark bg-white/50'
                     }`}
                   >
-                    {s}
+                    {sz}
                   </button>
                 ))}
               </div>
             </div>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-slate-800">
+          {/* Add to Cart CTA */}
+          <div className="pt-4 border-t border-brand-sand">
             <button
               onClick={handleAdd}
-              className={`w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition cursor-pointer ${
+              disabled={added}
+              className={`w-full py-3.5 text-xs uppercase tracking-luxury font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
                 added 
-                  ? 'bg-emerald-600 text-white' 
-                  : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25'
+                  ? 'bg-emerald-700 text-white' 
+                  : 'bg-brand-charcoal text-brand-cream hover:bg-brand-champagne hover:text-brand-dark'
               }`}
             >
               {added ? (
                 <>
-                  <Check className="w-4 h-4" /> Added to Cart!
+                  <Check className="w-4 h-4" />
+                  <span>Added to Luxury Bag</span>
                 </>
               ) : (
                 <>
-                  <ShoppingBag className="w-4 h-4" /> Add to Cart
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Acquire Piece &bull; Rs. {product.price?.toLocaleString()}</span>
                 </>
               )}
             </button>
           </div>
+
         </div>
+
       </div>
     </div>
   );
-}
+};
+
+export default QuickViewModal;
