@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
-import { Search, SlidersHorizontal, RefreshCw } from 'lucide-react';
+import QuickViewModel from '../components/QuickViewModel';
+import { Search, RefreshCw } from 'lucide-react';
 
 const Shop = ({ onAddToCart }) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -10,6 +11,7 @@ const Shop = ({ onAddToCart }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -39,7 +41,7 @@ const Shop = ({ onAddToCart }) => {
   return (
     <div className="py-12 px-6 lg:px-12 max-w-7xl mx-auto space-y-10">
       
-      {/* Page Header */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-stone-200 pb-8">
         <div className="space-y-2">
           <span className="text-[10px] uppercase tracking-[0.3em] text-stone-400 font-semibold">
@@ -53,7 +55,7 @@ const Shop = ({ onAddToCart }) => {
           </p>
         </div>
 
-        {/* Filter Navigation Tabs */}
+        {/* Categories */}
         <div className="flex flex-wrap gap-2">
           {['all', 'women', 'men', 'accessories'].map((cat) => (
             <button
@@ -71,7 +73,7 @@ const Shop = ({ onAddToCart }) => {
         </div>
       </div>
 
-      {/* Search Input Bar */}
+      {/* Search Bar */}
       <div className="relative max-w-md">
         <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
         <input
@@ -83,7 +85,7 @@ const Shop = ({ onAddToCart }) => {
         />
       </div>
 
-      {/* Product Catalog Grid */}
+      {/* Grid */}
       {loading ? (
         <div className="py-24 flex flex-col items-center justify-center space-y-3 text-stone-400">
           <RefreshCw className="w-6 h-6 animate-spin text-stone-700" />
@@ -101,10 +103,19 @@ const Shop = ({ onAddToCart }) => {
               key={product.id} 
               product={product} 
               onAddToCart={onAddToCart}
+              onQuickView={(p) => setQuickViewProduct(p)}
             />
           ))}
         </div>
       )}
+
+      {/* Quick View Modal */}
+      <QuickViewModel
+        isOpen={Boolean(quickViewProduct)}
+        product={quickViewProduct}
+        onClose={() => setQuickViewProduct(null)}
+        onAddToCart={onAddToCart}
+      />
 
     </div>
   );
