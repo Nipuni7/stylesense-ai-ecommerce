@@ -7,12 +7,16 @@ import CartDrawer from './components/CartDrawer';
 import Hero from './components/Hero';
 import FeaturedSection from './components/FeaturedSection';
 import AIStylistSection from './components/AIStylistSection';
+import VisualSearchModal from './components/VisualSearchModal';
+import AIConciergeDrawer from './components/AIConciergeDrawer';
 import Shop from './pages/Shop';
 import AIStylist from './pages/AIStylist';
 import Dashboard from './pages/Dashboard';
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isVisualSearchOpen, setIsVisualSearchOpen] = useState(false);
+  const [isConciergeOpen, setIsConciergeOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [toast, setToast] = useState(null);
 
@@ -31,9 +35,7 @@ function App() {
       }
       return [...prev, { ...product, quantity: 1 }];
     });
-    
-    // Luxury Floating Notification Alert
-    showToast("Curated into Bag", `${product.name} (LKR ${product.price?.toLocaleString()}) added to your Atelier cart.`);
+    showToast("Curated into Bag", `${product.name} added to your Atelier cart.`);
   };
 
   const handleRemoveItem = (id) => {
@@ -57,7 +59,9 @@ function App() {
       <div className="min-h-screen bg-[#FAF8F5] text-stone-900 font-sans flex flex-col selection:bg-stone-300">
         <Navbar 
           onOpenCart={() => setIsCartOpen(true)} 
-          cartCount={cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0)} 
+          cartCount={cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0)}
+          onOpenVisualSearch={() => setIsVisualSearchOpen(true)}
+          onOpenConcierge={() => setIsConciergeOpen(true)}
         />
         
         <main className="flex-1">
@@ -77,6 +81,7 @@ function App() {
 
         <Footer />
 
+        {/* Global Drawers & Modals */}
         <CartDrawer 
           isOpen={isCartOpen} 
           onClose={() => setIsCartOpen(false)}
@@ -86,7 +91,19 @@ function App() {
           onClearCart={handleClearCart}
         />
 
-        {/* Floating Glassmorphic Toast Notification */}
+        <VisualSearchModal 
+          isOpen={isVisualSearchOpen}
+          onClose={() => setIsVisualSearchOpen(false)}
+          onAddToCart={handleAddToCart}
+        />
+
+        <AIConciergeDrawer
+          isOpen={isConciergeOpen}
+          onClose={() => setIsConciergeOpen(false)}
+          onAddToCart={handleAddToCart}
+        />
+
+        {/* Toast */}
         {toast && (
           <div className="fixed bottom-6 right-6 z-50 flex items-start gap-3 p-4 bg-stone-900 text-white shadow-2xl border border-stone-700 max-w-sm w-full transition-all duration-300">
             <div className="p-2 bg-stone-800 rounded-full text-stone-300">
@@ -100,10 +117,7 @@ function App() {
                 {toast.message}
               </p>
             </div>
-            <button 
-              onClick={() => setToast(null)}
-              className="text-stone-400 hover:text-white"
-            >
+            <button onClick={() => setToast(null)} className="text-stone-400 hover:text-white">
               <X className="w-4 h-4" />
             </button>
           </div>
