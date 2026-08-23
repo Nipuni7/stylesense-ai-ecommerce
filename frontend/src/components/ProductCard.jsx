@@ -1,5 +1,5 @@
 import React from 'react';
-import { Eye, ShoppingBag, Shirt, Sparkles } from 'lucide-react';
+import { Eye, ShoppingBag, Shirt, Sparkles, HelpCircle } from 'lucide-react';
 
 const ProductCard = ({ product, onAddToCart, onQuickView, onTryOn, onCompleteLook }) => {
   return (
@@ -21,6 +21,12 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onTryOn, onCompleteLoo
           </span>
         )}
 
+        {/* AI Match Score Pill */}
+        <span className="absolute bottom-3 left-3 bg-stone-900/80 text-amber-300 border border-stone-700 text-[9px] font-mono px-2 py-0.5 backdrop-blur-sm flex items-center gap-1">
+          <Sparkles className="w-2.5 h-2.5" />
+          <span>{product.trendScore || 94}% AI Match</span>
+        </span>
+
         {/* Quick View Floating Eye Icon */}
         <button
           onClick={() => onQuickView && onQuickView(product)}
@@ -33,16 +39,26 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onTryOn, onCompleteLoo
 
       {/* Product Details */}
       <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-        <div className="space-y-1">
-          <span className="text-[10px] uppercase tracking-[0.2em] text-stone-400 font-medium">
-            {product.category}
-          </span>
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-center">
+            <span className="text-[10px] uppercase tracking-[0.2em] text-stone-400 font-medium">
+              {product.category}
+            </span>
+            <span className="text-[9px] font-mono text-stone-400">
+              Color: {product.color || 'Neutral'}
+            </span>
+          </div>
+
           <h3 className="font-serif text-sm tracking-wide text-stone-900 line-clamp-1">
             {product.name}
           </h3>
-          <p className="text-xs text-stone-500 font-sans line-clamp-2 leading-relaxed">
-            {product.description}
-          </p>
+
+          {/* Explainable AI Rationale Tag */}
+          <div className="p-1.5 bg-stone-50 border-l-2 border-stone-800 text-[10px] text-stone-600 font-sans leading-tight">
+            <p className="line-clamp-2">
+              💡 <strong className="text-stone-800 font-medium">Why Curated:</strong> {product.explainableRationale || `Matches your Warm Autumn palette & structured gala preference.`}
+            </p>
+          </div>
         </div>
 
         {/* Price & Add to Bag */}
@@ -63,7 +79,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onTryOn, onCompleteLoo
           </button>
         </div>
 
-        {/* AI Actions Row: Virtual Try-On & Complete Look */}
+        {/* AI Actions Row */}
         <div className="grid grid-cols-2 gap-1.5 pt-1">
           <button
             onClick={() => onTryOn && onTryOn(product)}
