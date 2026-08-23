@@ -29,11 +29,15 @@ const Navbar = ({ onOpenCart, cartCount = 0 }) => {
             </span>
           </a>
 
-          {/* Nav Links */}
-          <nav className="hidden md:flex items-center space-x-8 text-xs uppercase tracking-luxury text-brand-dark">
+          {/* Nav Links with Direct Category Support */}
+          <nav className="hidden md:flex items-center space-x-7 text-xs uppercase tracking-luxury text-brand-dark">
             <a href="/" className="hover:text-brand-champagne transition-colors">Atelier</a>
-            <a href="/shop" className="hover:text-brand-champagne transition-colors">Collection</a>
-            <a href="/stylist" className="flex items-center gap-1.5 text-brand-champagne font-semibold hover:opacity-80 transition-opacity">
+            <a href="/shop" className="hover:text-brand-champagne transition-colors">All Pieces</a>
+            <a href="/shop?cat=women" className="hover:text-brand-champagne transition-colors font-medium">Women</a>
+            <a href="/shop?cat=men" className="hover:text-brand-champagne transition-colors font-medium">Men</a>
+            <a href="/shop?cat=accessories" className="hover:text-brand-champagne transition-colors font-medium">Accessories</a>
+            
+            <a href="/stylist" className="flex items-center gap-1.5 text-brand-champagne font-semibold hover:opacity-80 transition-opacity border-l border-brand-sand/80 pl-6">
               <Sparkles className="w-3.5 h-3.5" />
               <span>AI Stylist</span>
             </a>
@@ -56,7 +60,7 @@ const Navbar = ({ onOpenCart, cartCount = 0 }) => {
               </div>
             ) : (
               <button 
-                onClick={() => setIsAuthOpen(true)}
+                onClick={() => setIsAuthOpen(true)} 
                 className="p-1 hover:text-brand-champagne transition-colors"
                 title="Account"
               >

@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
-import { Filter, Sparkles, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 
 const Shop = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // URL query parameter කියවා auto-filter කිරීම (eg: /shop?cat=women)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const catParam = params.get('cat');
+    if (catParam && ['women', 'men', 'accessories'].includes(catParam.toLowerCase())) {
+      setActiveCategory(catParam.toLowerCase());
+    }
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -26,6 +35,12 @@ const Shop = () => {
 
     fetchProducts();
   }, [activeCategory]);
+
+  const handleCategoryClick = (cat) => {
+    setActiveCategory(cat);
+    const newUrl = cat === 'all' ? '/shop' : `/shop?cat=${cat}`;
+    window.history.pushState({}, '', newUrl);
+  };
 
   return (
     <div className="bg-brand-cream min-h-screen py-12 px-6 lg:px-12">
@@ -49,8 +64,8 @@ const Shop = () => {
           {['all', 'women', 'men', 'accessories'].map((cat) => (
             <button
               key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`pb-2 transition-all font-semibold ${
+              onClick={() => handleCategoryClick(cat)}
+              className={`pb-2 transition-all font-semibold capitalize ${
                 activeCategory === cat
                   ? 'border-b-2 border-brand-dark text-brand-dark'
                   : 'text-brand-muted hover:text-brand-dark'
