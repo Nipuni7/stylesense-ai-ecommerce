@@ -1,113 +1,134 @@
-import React from 'react';
-import { ArrowUpRight, Sparkles } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import ProductCard from './ProductCard';
+import QuickViewModel from './QuickViewModel';
+import { Sparkles, ArrowRight } from 'lucide-react';
 
 const categories = [
   {
-    id: 'women',
-    title: "Women's Collection",
-    subtitle: "Atelier Gowns, Silk Sarees & Drapes",
-    itemCount: "20 Curated Pieces",
-    image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200&auto=format&fit=crop",
+    title: "Women's Atelier",
+    tagline: "Haute Silhouettes & Mulberry Silks",
+    image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800&auto=format&fit=crop",
     link: "/shop?cat=women",
-    tag: "Haute Couture"
+    count: "20 Pieces"
   },
   {
-    id: 'men',
-    title: "Men's Collection",
-    subtitle: "Bespoke Tailoring & Fine Linen Sets",
-    itemCount: "20 Curated Pieces",
-    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=1200&auto=format&fit=crop",
+    title: "Men's Sartorial",
+    tagline: "Bespoke Linens & Super 120s Tailoring",
+    image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?q=80&w=800&auto=format&fit=crop",
     link: "/shop?cat=men",
-    tag: "Sartorial"
+    count: "20 Pieces"
   },
   {
-    id: 'accessories',
-    title: "Luxury Accessories",
-    subtitle: "Full-Grain Leather, Gems & Silk",
-    itemCount: "20 Curated Pieces",
-    image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1200&auto=format&fit=crop",
+    title: "High Jewels & Accents",
+    tagline: "Ceylon Sapphires & Full-Grain Leathers",
+    image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=800&auto=format&fit=crop",
     link: "/shop?cat=accessories",
-    tag: "Artisanal"
+    count: "20 Pieces"
   }
 ];
 
-const FeaturedSection = () => {
-  const navigate = useNavigate();
+// Fallback items for home preview
+const featuredItems = [
+  { id: 1, name: "Silk Satin Slip Gown", category: "women", price: 28500, image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800&auto=format&fit=crop", description: "Floor-length pure mulberry silk gown in champagne beige.", badge: "Haute Piece", color: "Champagne" },
+  { id: 2, name: "Tailored Linen Blazer", category: "women", price: 34900, image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=800&auto=format&fit=crop", description: "Structured double-breasted pure flax linen blazer in warm sand.", badge: "Bespoke Cut", color: "Sand" },
+  { id: 21, name: "Bespoke Wool-Blend Tuxedo", category: "men", price: 68000, image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?q=80&w=800&auto=format&fit=crop", description: "Satin peak lapel formal tuxedo tailored with super 120s wool.", badge: "Master Cut", color: "Black" },
+  { id: 41, name: "Full-Grain Leather Atelier Tote", category: "accessories", price: 39500, image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=800&auto=format&fit=crop", description: "Hand-burnished vegetable-tanned leather with antique brass hardware.", badge: "Craft Legacy", color: "Cognac" }
+];
+
+const FeaturedSection = ({ onAddToCart }) => {
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
 
   return (
-    <section className="py-20 px-6 lg:px-12 bg-[#FAF8F5] border-t border-stone-200">
-      <div className="max-w-7xl mx-auto space-y-12">
-        
-        {/* Section Header */}
-        <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 text-stone-500 text-xs uppercase tracking-[0.25em] font-semibold">
-            <Sparkles className="w-3.5 h-3.5 text-stone-700" />
-            <span>Discover The Atelier</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif uppercase tracking-tight text-stone-900">
+    <section className="py-16 px-6 lg:px-12 max-w-7xl mx-auto space-y-20">
+      
+      {/* 1. Main 3 Curated Category Universe Cards */}
+      <div className="space-y-6">
+        <div className="text-center space-y-1 max-w-xl mx-auto">
+          <span className="text-[10px] uppercase tracking-[0.3em] text-stone-400 font-semibold">
             Curated Universes
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-serif uppercase tracking-tight text-stone-900">
+            Explore The Collections
           </h2>
-          <p className="text-xs sm:text-sm text-stone-600 font-sans tracking-wide leading-relaxed">
-            Select a realm below to explore twenty signature creations handcrafted with bespoke tailoring and pure organic textures.
-          </p>
         </div>
 
-        {/* 3 Luxury Big Category Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {categories.map((cat) => (
-            <div
-              key={cat.id}
-              onClick={() => navigate(cat.link)}
-              className="group relative h-[520px] w-full overflow-hidden rounded-none cursor-pointer bg-stone-900 shadow-xl transition-all duration-700 hover:shadow-2xl"
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {categories.map((cat, idx) => (
+            <Link
+              key={idx}
+              to={cat.link}
+              className="group relative h-[440px] overflow-hidden bg-stone-900 border border-stone-200 block shadow-md hover:shadow-xl transition-all"
             >
-              {/* Background Image with Slow Zoom Effect */}
               <img
                 src={cat.image}
                 alt={cat.title}
-                className="h-full w-full object-cover object-center transition-transform duration-1000 ease-out group-hover:scale-110 opacity-85 group-hover:opacity-95"
+                className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105 opacity-80 group-hover:opacity-90"
               />
-
-              {/* Dark Luxury Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-opacity duration-500 group-hover:from-black/95" />
-
-              {/* Top Tag */}
-              <div className="absolute top-6 left-6">
-                <span className="px-3 py-1 bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] uppercase tracking-[0.2em] font-medium">
-                  {cat.tag}
+              <div className="absolute inset-0 bg-gradient-to-t from-stone-950/95 via-stone-900/40 to-transparent" />
+              
+              <div className="absolute bottom-0 inset-x-0 p-6 flex flex-col justify-end space-y-2">
+                <span className="text-[10px] uppercase tracking-[0.25em] text-stone-300 font-mono">
+                  {cat.count}
                 </span>
-              </div>
-
-              {/* Bottom Card Content */}
-              <div className="absolute bottom-0 inset-x-0 p-8 flex flex-col justify-end space-y-3 text-white">
-                <span className="text-[11px] uppercase tracking-[0.25em] text-stone-300 font-sans">
-                  {cat.itemCount}
-                </span>
-                
-                <h3 className="text-2xl lg:text-3xl font-serif uppercase tracking-wide text-white group-hover:text-stone-200 transition-colors">
+                <h3 className="text-2xl font-serif text-white tracking-wide">
                   {cat.title}
                 </h3>
-
-                <p className="text-xs text-stone-300 font-sans line-clamp-2 leading-relaxed">
-                  {cat.subtitle}
+                <p className="text-xs text-stone-300 font-sans line-clamp-1">
+                  {cat.tagline}
                 </p>
-
-                {/* Explore Link with Floating Arrow */}
-                <div className="pt-4 flex items-center justify-between border-t border-white/20">
-                  <span className="text-xs uppercase tracking-[0.2em] font-medium text-white group-hover:underline underline-offset-8 transition-all">
-                    Explore Collection
-                  </span>
-                  <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white transition-all duration-500 group-hover:bg-white group-hover:text-stone-900 group-hover:rotate-45">
-                    <ArrowUpRight className="w-4 h-4" />
-                  </div>
+                <div className="pt-2 flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-stone-100 font-semibold group-hover:translate-x-1.5 transition-transform">
+                  <span>Enter Collection</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </div>
-
-            </div>
+            </Link>
           ))}
         </div>
-
       </div>
+
+      {/* 2. Featured Highlights Grid */}
+      <div className="space-y-8 pt-8 border-t border-stone-200">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-stone-500 text-[10px] uppercase tracking-[0.3em] font-semibold">
+              <Sparkles className="w-3.5 h-3.5 text-stone-700" />
+              <span>Atelier Highlights</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-serif uppercase tracking-tight text-stone-900">
+              Signature Creations
+            </h2>
+          </div>
+
+          <Link
+            to="/shop"
+            className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-stone-900 font-semibold hover:opacity-70 transition-opacity"
+          >
+            <span>View All 60 Catalog Pieces</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {featuredItems.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onAddToCart={onAddToCart}
+              onQuickView={(p) => setQuickViewProduct(p)}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Quick View Modal */}
+      <QuickViewModel
+        isOpen={Boolean(quickViewProduct)}
+        product={quickViewProduct}
+        onClose={() => setQuickViewProduct(null)}
+        onAddToCart={onAddToCart}
+      />
+
     </section>
   );
 };
