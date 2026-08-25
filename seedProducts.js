@@ -1,4 +1,7 @@
-﻿import mongoose from "mongoose";
+﻿import dns from "dns";
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+
+import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Product from "./models/Product.js";
 
@@ -90,7 +93,7 @@ async function seedDatabase() {
     console.log(`Successfully seeded ${created.length} products into MongoDB Atlas!`);
 
     await mongoose.disconnect();
-    console.log("Disconnected from MongoDB.");
+    console.log("Disconnected from MongoDB Atlas.");
     process.exit(0);
   } catch (error) {
     console.error("Seeding Error:", error.message);
