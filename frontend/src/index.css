@@ -15,23 +15,62 @@
   --letter-spacing-luxury: 0.2em;
 }
 
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #C5A880 #F9F6F0;
+}
+
 body {
+  margin: 0;
   background-color: var(--color-brand-cream);
   color: var(--color-brand-dark);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
-/* Custom minimal luxury scrollbar */
+/* Luxury scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 6px;
+  height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: #F9F6F0;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #C5A880;
+  background: linear-gradient(
+    180deg,
+    #D4AF37 0%,
+    #C5A880 50%,
+    #A88B65 100%
+  );
+  border-radius: 999px;
+  border: 1px solid #F9F6F0;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #0F0F10;
+}
+
+::-webkit-scrollbar-corner {
+  background: #F9F6F0;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Accessible focus state */
+:focus-visible {
+  outline: 2px solid #C5A880;
+  outline-offset: 3px;
+}
+
+/* Selection styling */
+::selection {
+  background: #D4AF37;
+  color: #0F0F10;
 }
