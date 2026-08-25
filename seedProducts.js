@@ -4,7 +4,7 @@ import Product from "./models/Product.js";
 
 dotenv.config();
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/stylesense";
+const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://theenipuni55_db_user:StyleSense12345@cluster0.jdr8sxl.mongodb.net/stylesense?retryWrites=true&w=majority&appName=Cluster0";
 
 const rawProducts = [
   {
@@ -79,15 +79,15 @@ const rawProducts = [
 
 async function seedDatabase() {
   try {
-    console.log("Connecting to MongoDB...");
+    console.log("Connecting to MongoDB Atlas...");
     await mongoose.connect(MONGO_URI);
-    console.log("Connected to MongoDB.");
+    console.log("Connected to MongoDB Atlas.");
 
     await Product.deleteMany({});
     console.log("Cleared existing product records.");
 
     const created = await Product.insertMany(rawProducts);
-    console.log(`Successfully seeded ${created.length} products into MongoDB.`);
+    console.log(`Successfully seeded ${created.length} products into MongoDB Atlas!`);
 
     await mongoose.disconnect();
     console.log("Disconnected from MongoDB.");
