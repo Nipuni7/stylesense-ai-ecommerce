@@ -11,6 +11,7 @@ import VisualSearchModal from './components/VisualSearchModal';
 import AIConciergeDrawer from './components/AIConciergeDrawer';
 import Shop from './pages/Shop';
 import AIStylist from './pages/AIStylist';
+import ComingSoonReveal from "./components/ComingSoonReveal";
 import Dashboard from './pages/Dashboard';
 
 function App() {
@@ -69,6 +70,7 @@ function App() {
             <Route path="/" element={
               <>
                 <Hero />
+                <ComingSoonReveal />
                 <FeaturedSection />
                 <AIStylistSection />
               </>
