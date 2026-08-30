@@ -4,23 +4,43 @@ import { Sparkles, Clock, Lock, ArrowRight, Check } from 'lucide-react';
 const upcomingVault = [
   {
     id: "vault-1",
-    edition: "Vault Drop 01 // Autumn Equinox",
-    title: "The Zero-Gravity Titanium Trench",
-    fabric: "Japanese Hydro-Silk & Micro-Titanium Filament",
+    edition: "Vault Drop 01 // Cyber Couture",
+    title: "The Zero-Gravity Cyber Trench",
+    fabric: "Japanese Hydro-Silk & Micro-Titanium Hardware",
     launchDate: "OCTOBER 15, 2026",
-    image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80",
-    expectedPrice: "LKR 78,000",
-    status: "In Bespoke Prototyping"
+    image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80",
+    expectedPrice: "LKR 84,000",
+    status: "Prototyping in Atelier"
   },
   {
     id: "vault-2",
-    edition: "Vault Drop 02 // Evening Haute",
-    title: "Liquid Platinum Lamé Evening Gown",
-    fabric: "24k White Gold Leaf Embroidered Tulle",
-    launchDate: "NOVEMBER 01, 2026",
-    image: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80",
-    expectedPrice: "LKR 115,000",
-    status: "Limited Edition (12 numbered pieces)"
+    edition: "Vault Drop 02 // Red Carpet Haute",
+    title: "Liquid Champagne Lamé Slip Gown",
+    fabric: "24K Molten Gold Thread & Mulberry Organza",
+    launchDate: "NOVEMBER 05, 2026",
+    image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80",
+    expectedPrice: "LKR 112,000",
+    status: "Limited Atelier Drop (10 Pieces)"
+  },
+  {
+    id: "vault-3",
+    edition: "Vault Drop 03 // Avant-Garde Tailoring",
+    title: "Sculptural Raw Matka Cape Blazer",
+    fabric: "Handloomed Ceylon Silk-Wool & Horn Buttons",
+    launchDate: "NOVEMBER 22, 2026",
+    image: "https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?auto=format&fit=crop&w=800&q=80",
+    expectedPrice: "LKR 65,000",
+    status: "Hand-Draping Phase"
+  },
+  {
+    id: "vault-4",
+    edition: "Vault Drop 04 // High Jewelry Vault",
+    title: "Floating Keshi Pearl & Gold Choker",
+    fabric: "18K Solid Vermeil & South Sea Baroque Pearl",
+    launchDate: "DECEMBER 10, 2026",
+    image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80",
+    expectedPrice: "LKR 135,000",
+    status: "1-of-1 Collector Edition"
   }
 ];
 
@@ -55,64 +75,64 @@ const ComingSoonReveal = () => {
             </h2>
           </div>
           <p className="text-xs text-stone-400 max-w-md font-sans leading-relaxed">
-            Reserved exclusively for private clients. Preview strictly confidential capsule editions currently under development in our atelier.
+            Reserved exclusively for private patrons. Preview strictly confidential capsule editions currently undergoing artisanal tailoring in our atelier.
           </p>
         </div>
 
         {/* Reveal Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {upcomingVault.map((item) => (
             <div 
               key={item.id}
               className="group relative bg-stone-900 border border-stone-800 overflow-hidden hover:border-amber-400/50 transition-all duration-500 flex flex-col justify-between"
             >
-              <div className="relative aspect-[4/3] overflow-hidden bg-stone-950">
+              <div className="relative aspect-[3/4] overflow-hidden bg-stone-950">
                 <img 
                   src={item.image} 
                   alt={item.title}
-                  className="w-full h-full object-cover grayscale opacity-70 group-hover:scale-105 group-hover:opacity-90 group-hover:grayscale-0 transition-all duration-700" 
+                  className="w-full h-full object-cover grayscale opacity-75 group-hover:scale-105 group-hover:opacity-95 group-hover:grayscale-0 transition-all duration-700" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent" />
                 
-                <div className="absolute top-4 left-4 flex items-center gap-2 bg-stone-900/90 backdrop-blur-md px-3 py-1.5 border border-stone-700 text-[10px] uppercase tracking-wider text-amber-300 font-mono">
+                <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-stone-900/90 backdrop-blur-md px-2.5 py-1 border border-stone-700 text-[9px] uppercase tracking-wider text-amber-300 font-mono">
                   <Lock className="w-3 h-3 text-amber-400" />
                   <span>{item.edition}</span>
                 </div>
 
-                <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                  <div className="space-y-1">
-                    <span className="text-[9px] uppercase tracking-widest text-stone-400 block font-mono">
+                <div className="absolute bottom-3 left-3 right-3 flex justify-between items-end">
+                  <div className="space-y-0.5">
+                    <span className="text-[8px] uppercase tracking-widest text-stone-400 block font-mono">
                       Expected Debut
                     </span>
-                    <span className="text-xs font-mono font-semibold text-white flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-amber-400" /> {item.launchDate}
+                    <span className="text-[11px] font-mono font-semibold text-white flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-amber-400" /> {item.launchDate}
                     </span>
                   </div>
-                  <span className="text-xs font-mono text-stone-300 bg-stone-900/80 px-2.5 py-1 border border-stone-700">
+                  <span className="text-[10px] font-mono text-stone-300 bg-stone-900/90 px-2 py-0.5 border border-stone-700">
                     Est. {item.expectedPrice}
                   </span>
                 </div>
               </div>
 
               {/* Item Info & CTA */}
-              <div className="p-6 space-y-4">
+              <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
                 <div>
-                  <h3 className="font-serif text-xl text-white tracking-wide group-hover:text-amber-200 transition-colors">
+                  <h3 className="font-serif text-lg text-white tracking-wide group-hover:text-amber-200 transition-colors line-clamp-1">
                     {item.title}
                   </h3>
-                  <p className="text-xs text-stone-400 mt-1 font-mono">{item.fabric}</p>
+                  <p className="text-[11px] text-stone-400 mt-1 font-mono line-clamp-2">{item.fabric}</p>
                 </div>
 
-                <div className="pt-4 border-t border-stone-800/80 flex items-center justify-between">
-                  <span className="text-[10px] uppercase tracking-wider text-amber-400/90 font-mono">
+                <div className="pt-3 border-t border-stone-800/80 flex items-center justify-between">
+                  <span className="text-[9px] uppercase tracking-wider text-amber-400/90 font-mono">
                     ● {item.status}
                   </span>
                   <button
                     onClick={() => setRegisteredItem(item)}
-                    className="text-xs uppercase tracking-[0.2em] font-semibold text-white hover:text-amber-300 flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="text-[10px] uppercase tracking-[0.2em] font-semibold text-white hover:text-amber-300 flex items-center gap-1 transition-colors cursor-pointer"
                   >
-                    <span>Request Priority</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <span>Priority</span>
+                    <ArrowRight className="w-3 h-3" />
                   </button>
                 </div>
               </div>
@@ -126,7 +146,7 @@ const ComingSoonReveal = () => {
             <div className="bg-stone-900 border border-stone-700 max-w-md w-full p-8 space-y-6 shadow-2xl relative">
               <button 
                 onClick={() => setRegisteredItem(null)} 
-                className="absolute top-4 right-4 text-stone-400 hover:text-white text-lg"
+                className="absolute top-4 right-4 text-stone-400 hover:text-white text-lg cursor-pointer"
               >
                 ✕
               </button>
