@@ -8,7 +8,7 @@ const CompleteLookModal = ({ productId, isOpen, onClose, onAddToCart }) => {
   useEffect(() => {
     if (isOpen && productId) {
       setLoading(true);
-      fetch(`http://localhost:5000/api/ai/complete-look/${productId}`)
+      fetch(`https://stylesense-ai-ecommerce-production.up.railway.app/api/ai/complete-look/${productId}`)
         .then(res => res.json())
         .then(data => setEnsemble(data))
         .catch(err => console.error(err))

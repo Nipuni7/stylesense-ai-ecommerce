@@ -14,7 +14,7 @@ const VisualSearchModal = ({ isOpen, onClose, onAddToCart }) => {
     setVisualResult(null);
     setTimeout(async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/ai/visual-search', {
+        const res = await fetch('https://stylesense-ai-ecommerce-production.up.railway.app/api/ai/visual-search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ styleKeywords: "Minimalist Champagne Silk" })
@@ -34,7 +34,7 @@ const VisualSearchModal = ({ isOpen, onClose, onAddToCart }) => {
     setColorResult(null);
     setTimeout(async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/ai/color-analysis', {
+        const res = await fetch('https://stylesense-ai-ecommerce-production.up.railway.app/api/ai/color-analysis', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ season })

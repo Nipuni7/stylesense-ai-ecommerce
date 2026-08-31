@@ -23,7 +23,7 @@ const AIConciergeDrawer = ({ isOpen, onClose, onAddToCart }) => {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/ai/concierge-chat', {
+      const res = await fetch('https://stylesense-ai-ecommerce-production.up.railway.app/api/ai/concierge-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userText })

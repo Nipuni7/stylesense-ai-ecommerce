@@ -23,7 +23,7 @@ const CheckoutModal = ({ isOpen, onClose, cartItems = [], totalAmount = 0, onOrd
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/orders/checkout', {
+      const res = await fetch('https://stylesense-ai-ecommerce-production.up.railway.app/api/orders/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

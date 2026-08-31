@@ -34,31 +34,31 @@ const Dashboard = () => {
 
   useEffect(() => {
     // 1. Fetch KPI Metrics
-    fetch('http://localhost:5000/api/admin/intelligence-metrics')
+    fetch('https://stylesense-ai-ecommerce-production.up.railway.app/api/admin/intelligence-metrics')
       .then(res => res.json())
       .then(data => setMetrics(data))
       .catch(e => console.error(e));
 
     // 2. Fetch CLV Predictions
-    fetch('http://localhost:5000/api/admin/clv-prediction')
+    fetch('https://stylesense-ai-ecommerce-production.up.railway.app/api/admin/clv-prediction')
       .then(res => res.json())
       .then(data => setClvData(data))
       .catch(e => console.error(e));
 
     // 3. Fetch Trend Intelligence
-    fetch('http://localhost:5000/api/admin/trend-intelligence')
+    fetch('https://stylesense-ai-ecommerce-production.up.railway.app/api/admin/trend-intelligence')
       .then(res => res.json())
       .then(data => setTrendData(data))
       .catch(e => console.error(e));
 
     // 4. Fetch Executive AI Insights
-    fetch('http://localhost:5000/api/admin/executive-insights')
+    fetch('https://stylesense-ai-ecommerce-production.up.railway.app/api/admin/executive-insights')
       .then(res => res.json())
       .then(data => setExecutiveInsights(data))
       .catch(e => console.error(e));
 
     // 5. Fetch Style DNA
-    fetch('http://localhost:5000/api/ai/user-style-dna')
+    fetch('https://stylesense-ai-ecommerce-production.up.railway.app/api/ai/user-style-dna')
       .then(res => res.json())
       .then(data => setStyleDna(data))
       .catch(e => console.error(e));

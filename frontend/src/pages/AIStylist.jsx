@@ -33,7 +33,7 @@ const AIStylist = ({ onAddToCart }) => {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/stylist/recommend', {
+      const res = await fetch('https://stylesense-ai-ecommerce-production.up.railway.app/api/stylist/recommend', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
