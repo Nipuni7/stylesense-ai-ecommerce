@@ -19,7 +19,17 @@ const AuthModal = ({ isOpen, onClose, onLoginSuccess }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const clientName = isLogin ? (formData.email.split('@')[0] || 'Client') : formData.name;
-    const clientData = { name: clientName, email: formData.email };
+    
+    // Email එකේ "admin" අඩංගු නම් හෝ password එක "admin123" නම් Admin privileges ලබා දීම
+    const isAdminUser = 
+      formData.email.toLowerCase().includes('admin') || 
+      formData.password === 'admin123';
+
+    const clientData = { 
+      name: clientName, 
+      email: formData.email,
+      isAdmin: isAdminUser
+    };
     
     setUserState(clientData);
     if (onLoginSuccess) onLoginSuccess(clientData);
@@ -88,7 +98,7 @@ const AuthModal = ({ isOpen, onClose, onLoginSuccess }) => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="client@stylesense.com"
+                  placeholder="admin@stylesense.luxury"
                   className="w-full border border-brand-sand bg-white/80 pl-9 pr-3 py-2.5 rounded-sm focus:outline-none focus:border-brand-champagne"
                 />
               </div>
@@ -104,7 +114,7 @@ const AuthModal = ({ isOpen, onClose, onLoginSuccess }) => {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="••••••••"
+                  placeholder="admin123"
                   className="w-full border border-brand-sand bg-white/80 pl-9 pr-3 py-2.5 rounded-sm focus:outline-none focus:border-brand-champagne"
                 />
               </div>
