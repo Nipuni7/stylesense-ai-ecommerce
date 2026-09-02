@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingBag, Camera, Bot } from 'lucide-react';
+import { ShoppingBag, Camera, Bot, ShieldCheck, User } from 'lucide-react';
 
-const Navbar = ({ onOpenCart, cartCount = 0, onOpenVisualSearch, onOpenConcierge }) => {
+const Navbar = ({ onOpenCart, cartCount = 0, onOpenVisualSearch, onOpenConcierge, onOpenAuth }) => {
   const location = useLocation();
 
   const navLinks = [
@@ -41,9 +41,30 @@ const Navbar = ({ onOpenCart, cartCount = 0, onOpenVisualSearch, onOpenConcierge
           ))}
         </nav>
 
-        {/* Action Tools: AI Visual Search, Concierge, Cart */}
-        <div className="flex items-center gap-4">
+        {/* Action Tools: AI Visual Search, Concierge, Admin Auth, Cart */}
+        <div className="flex items-center gap-3">
           
+          {/* Direct Admin Link Button */}
+          <Link
+            to="/dashboard"
+            className="hidden sm:flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] font-semibold text-amber-700 bg-amber-50 border border-amber-200/80 px-3 py-1.5 rounded-sm hover:bg-amber-100 transition-all"
+            title="Access Order Stream & Executive Analytics"
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Admin Orders</span>
+          </Link>
+
+          {/* Admin / Member Login Modal Trigger */}
+          {onOpenAuth && (
+            <button
+              onClick={onOpenAuth}
+              className="p-2 text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all rounded-full"
+              title="Member & Admin Sign In"
+            >
+              <User className="w-4 h-4" />
+            </button>
+          )}
+
           {/* Visual Search Button */}
           {onOpenVisualSearch && (
             <button
