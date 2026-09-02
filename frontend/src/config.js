@@ -1,1 +1,1 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://stylesense-ai-ecommerce-production.up.railway.app';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://stylesense-ai-ecommerce.vercel.app';
