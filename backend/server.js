@@ -384,15 +384,32 @@ app.get('/api/orders', async (req, res) => {
   }
 });
 
-// --- Launch Server & Database Connection ---
-mongoose
-  .connect(MONGO_URI)
-  .then(() => {
+// --- Database Connection Cache (Optimized for Vercel Serverless) ---
+let isConnected = false;
+
+const connectDB = async () => {
+  if (isConnected) return;
+  try {
+    const db = await mongoose.connect(MONGO_URI);
+    isConnected = db.connections[0].readyState;
     console.log("🌿 StyleSense Database connected to MongoDB Atlas");
-    app.listen(PORT, () => {
-      console.log(`🚀 StyleSense AI Fashion Intelligence Server active on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
+  } catch (err) {
     console.error("❌ MongoDB connection error:", err.message);
+  }
+};
+
+// Middleware: Ensure DB connection on each serverless request
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
+
+// Run standalone server only in local development
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚀 StyleSense AI Fashion Intelligence Server active on port ${PORT}`);
   });
+}
+
+// Export Express app for Vercel Serverless Function
+export default app;
