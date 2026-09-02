@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { User, Package, Sparkles, TrendingUp, Users, BarChart3, Clock, Crown, Award, CheckCircle, Activity, Brain, ShieldAlert, LineChart } from 'lucide-react';
+import { 
+  User, Package, Sparkles, TrendingUp, Clock, Crown, 
+  Award, CheckCircle, Brain, LineChart, Lock, ShieldCheck, 
+  AlertCircle, LogOut 
+} from 'lucide-react';
 
 const mockOrders = [
   {
@@ -25,48 +29,160 @@ const loyaltyTiers = [
   { name: "Black Bespoke", threshold: 500000, current: false }
 ];
 
+const BACKEND_URL = 'https://stylesense-ai-ecommerce.vercel.app';
+
 const Dashboard = () => {
+  // Authentication states
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+
+  // Dashboard Data states
   const [metrics, setMetrics] = useState(null);
   const [clvData, setClvData] = useState(null);
   const [trendData, setTrendData] = useState(null);
   const [executiveInsights, setExecutiveInsights] = useState(null);
   const [styleDna, setStyleDna] = useState(null);
 
+  const handleAdminLogin = (e) => {
+    e.preventDefault();
+    if (
+      username.trim().toLowerCase() === 'admin@stylesense.luxury' &&
+      password === 'admin123'
+    ) {
+      setIsAuthenticated(true);
+      setAuthError('');
+    } else {
+      setAuthError('Invalid administrative credentials. Access denied.');
+    }
+  };
+
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     // 1. Fetch KPI Metrics
-    fetch('https://stylesense-ai-ecommerce-production.up.railway.app/api/admin/intelligence-metrics')
+    fetch(`${BACKEND_URL}/api/admin/intelligence-metrics`)
       .then(res => res.json())
       .then(data => setMetrics(data))
       .catch(e => console.error(e));
 
     // 2. Fetch CLV Predictions
-    fetch('https://stylesense-ai-ecommerce-production.up.railway.app/api/admin/clv-prediction')
+    fetch(`${BACKEND_URL}/api/admin/clv-prediction`)
       .then(res => res.json())
       .then(data => setClvData(data))
       .catch(e => console.error(e));
 
     // 3. Fetch Trend Intelligence
-    fetch('https://stylesense-ai-ecommerce-production.up.railway.app/api/admin/trend-intelligence')
+    fetch(`${BACKEND_URL}/api/admin/trend-intelligence`)
       .then(res => res.json())
       .then(data => setTrendData(data))
       .catch(e => console.error(e));
 
     // 4. Fetch Executive AI Insights
-    fetch('https://stylesense-ai-ecommerce-production.up.railway.app/api/admin/executive-insights')
+    fetch(`${BACKEND_URL}/api/admin/executive-insights`)
       .then(res => res.json())
       .then(data => setExecutiveInsights(data))
       .catch(e => console.error(e));
 
     // 5. Fetch Style DNA
-    fetch('https://stylesense-ai-ecommerce-production.up.railway.app/api/ai/user-style-dna')
+    fetch(`${BACKEND_URL}/api/ai/user-style-dna`)
       .then(res => res.json())
       .then(data => setStyleDna(data))
       .catch(e => console.error(e));
-  }, []);
+  }, [isAuthenticated]);
 
+  // View 1: Login Gate (If not authenticated)
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-[75vh] flex items-center justify-center px-4 bg-stone-50/50 py-16">
+        <div className="w-full max-w-md bg-white border border-stone-200 rounded-sm shadow-xl p-8 space-y-6 animate-fade-in">
+          <div className="text-center space-y-2">
+            <div className="w-12 h-12 bg-stone-900 border border-stone-800 rounded-full flex items-center justify-center mx-auto text-amber-400">
+              <Lock className="w-5 h-5" />
+            </div>
+            <h2 className="font-serif text-xl uppercase tracking-[0.2em] text-stone-900">
+              Atelier Terminal Access
+            </h2>
+            <p className="text-xs text-stone-500 font-sans tracking-wide">
+              Provide administrative credentials to access order acquisitions and intelligence layers.
+            </p>
+          </div>
+
+          {authError && (
+            <div className="flex items-center gap-2 p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-sm">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{authError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleAdminLogin} className="space-y-4 text-xs font-sans">
+            <div>
+              <label className="block uppercase tracking-[0.15em] text-stone-500 text-[10px] mb-1.5 font-semibold">
+                Administrative Email
+              </label>
+              <input
+                type="email"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="admin@stylesense.luxury"
+                className="w-full border border-stone-300 px-3.5 py-2.5 rounded-sm focus:outline-none focus:border-stone-900 bg-white"
+              />
+            </div>
+
+            <div>
+              <label className="block uppercase tracking-[0.15em] text-stone-500 text-[10px] mb-1.5 font-semibold">
+                Security Passcode
+              </label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full border border-stone-300 px-3.5 py-2.5 rounded-sm focus:outline-none focus:border-stone-900 bg-white"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 bg-stone-900 text-stone-100 text-xs uppercase tracking-[0.2em] font-semibold hover:bg-stone-800 transition-all flex items-center justify-center gap-2 mt-2"
+            >
+              <ShieldCheck className="w-4 h-4 text-amber-400" />
+              <span>Authorize Terminal</span>
+            </button>
+          </form>
+
+          <div className="pt-2 border-t border-stone-100 text-center">
+            <span className="text-[10px] font-mono text-stone-400 uppercase tracking-wider">
+              Default: admin@stylesense.luxury | admin123
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // View 2: Full Dashboard (When logged in)
   return (
     <div className="py-14 px-6 lg:px-12 max-w-7xl mx-auto space-y-12">
       
+      {/* Sign Out Action Bar */}
+      <div className="flex justify-between items-center bg-stone-100 border border-stone-200 px-4 py-2.5 text-xs font-sans">
+        <span className="text-stone-600 font-mono text-[11px] flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+          Terminal Session: <strong className="text-stone-900">Authenticated Admin</strong>
+        </span>
+        <button
+          onClick={() => setIsAuthenticated(false)}
+          className="flex items-center gap-1.5 text-stone-600 hover:text-stone-900 transition-colors uppercase tracking-widest text-[10px] font-semibold"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span>Close Session</span>
+        </button>
+      </div>
+
       {/* 1. Profile Header Banner with Style DNA */}
       <div className="bg-stone-900 text-stone-100 p-8 border border-stone-800 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-5">
