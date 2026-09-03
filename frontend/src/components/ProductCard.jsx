@@ -1,20 +1,7 @@
 import React from 'react';
-import {
-  Eye,
-  ShoppingBag,
-  Shirt,
-  Sparkles,
-  Heart,
-  ArrowUpRight
-} from 'lucide-react';
+import { Eye, ShoppingBag, Shirt, Sparkles, Heart, ArrowUpRight } from 'lucide-react';
 
-const ProductCard = ({
-  product,
-  onAddToCart,
-  onQuickView,
-  onTryOn,
-  onCompleteLook
-}) => {
+const ProductCard = ({ product, onAddToCart, onQuickView, onTryOn, onCompleteLook }) => {
   const aiScore = product.trendScore || 94;
 
   return (
@@ -27,6 +14,10 @@ const ProductCard = ({
           alt={product.name}
           className="h-full w-full object-cover object-center transition-transform duration-[1200ms] ease-out group-hover:scale-[1.045]"
           loading="lazy"
+          onError={(e) => {
+            e.target.onerror = null; 
+            e.target.src = "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?q=80&w=800&auto=format&fit=crop";
+          }}
         />
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/5 opacity-70 pointer-events-none" />
@@ -39,13 +30,6 @@ const ProductCard = ({
             </span>
           </div>
         )}
-
-        <button
-          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center bg-white/90 text-stone-700 opacity-0 shadow-sm backdrop-blur-md transition-all duration-300 hover:bg-stone-900 hover:text-white group-hover:opacity-100"
-          title="Add to wishlist"
-        >
-          <Heart className="h-3.5 w-3.5" />
-        </button>
 
         <button
           onClick={() => onQuickView?.(product)}
@@ -114,7 +98,6 @@ const ProductCard = ({
           </button>
         </div>
 
-        {/* ================= AI ACTIONS ================= */}
         <div className="mt-3 grid grid-cols-2 gap-2">
           <button
             onClick={() => onTryOn?.(product)}
