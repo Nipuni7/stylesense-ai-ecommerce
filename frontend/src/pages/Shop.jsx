@@ -5,7 +5,7 @@ import QuickViewModel from '../components/QuickViewModel';
 import CompleteLookModal from '../components/CompleteLookModal';
 import VirtualTryOnModal from '../components/VirtualTryOnModal';
 import { Search } from 'lucide-react';
-import { catalog60, catalogStats } from '../data/catalog';
+import { catalog60 } from '../data/catalog';
 
 const Shop = ({ onAddToCart }) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -16,7 +16,6 @@ const Shop = ({ onAddToCart }) => {
   const [completeLookProduct, setCompleteLookProduct] = useState(null);
   const [tryOnProduct, setTryOnProduct] = useState(null);
 
-  // Professional filtering logic for accurate category separation
   const filteredProducts = useMemo(() => {
     return catalog60.filter(item => {
       const itemCat = (item.category || '').toLowerCase().trim();
@@ -34,7 +33,7 @@ const Shop = ({ onAddToCart }) => {
   return (
     <div className="py-12 px-6 lg:px-12 max-w-7xl mx-auto space-y-10">
       
-      {/* Header Section */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-stone-200 pb-8">
         <div className="space-y-2">
           <span className="text-[10px] uppercase tracking-[0.3em] text-stone-400 font-semibold">
@@ -44,7 +43,7 @@ const Shop = ({ onAddToCart }) => {
             {currentCategory === 'all' ? 'Complete Collection' : `${currentCategory.toUpperCase()}'S ATELIER`}
           </h1>
           <p className="text-xs sm:text-sm text-stone-500 font-sans">
-            Showing {filteredProducts.length} of {catalogStats.total} bespoke pieces
+            Showing {filteredProducts.length} bespoke pieces
           </p>
         </div>
 
@@ -56,7 +55,7 @@ const Shop = ({ onAddToCart }) => {
               onClick={() => setSearchParams(cat === 'all' ? {} : { cat })}
               className={`px-4 py-2 text-xs uppercase tracking-[0.2em] transition-all ${
                 currentCategory === cat
-                  ? 'bg-stone-900 text-stone-100 font-semibold shadow-sm'
+                  ? 'bg-stone-900 text-stone-100 font-semibold'
                   : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
               }`}
             >
@@ -66,7 +65,7 @@ const Shop = ({ onAddToCart }) => {
         </div>
       </div>
 
-      {/* Search Input Bar */}
+      {/* Search Input */}
       <div className="relative max-w-md">
         <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
         <input
@@ -74,11 +73,11 @@ const Shop = ({ onAddToCart }) => {
           placeholder="Search garments, textures, descriptions..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-stone-200 text-xs font-sans text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-800 transition"
+          className="w-full pl-10 pr-4 py-2.5 bg-white border border-stone-200 text-xs font-sans text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-800"
         />
       </div>
 
-      {/* Product Grid / Empty State */}
+      {/* Product Grid */}
       {filteredProducts.length === 0 ? (
         <div className="py-20 text-center text-stone-500 text-xs font-sans">
           No bespoke garments found matching your criteria.
@@ -98,7 +97,7 @@ const Shop = ({ onAddToCart }) => {
         </div>
       )}
 
-      {/* Interactive Modals */}
+      {/* Modals */}
       <QuickViewModel
         isOpen={Boolean(quickViewProduct)}
         product={quickViewProduct}
