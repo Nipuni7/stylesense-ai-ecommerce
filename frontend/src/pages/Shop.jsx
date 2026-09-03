@@ -1,4 +1,3 @@
-```jsx
 import React, { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
@@ -1003,4 +1002,3 @@ const Shop = ({ onAddToCart }) => {
 
 
 export default Shop;
-```
