@@ -8,38 +8,56 @@ import { Search } from 'lucide-react';
 
 const BACKEND_URL = 'https://stylesense-ai-ecommerce.vercel.app';
 
+// Fallback safety catalog incase backend fetch fails or is slow
+const fallbackCatalog = [
+  { id: "w1", name: "Silk Satin Slip Dress", category: "women", price: 34500, image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800&auto=format&fit=crop", description: "Pure mulberry silk bias-cut slip dress featuring an open back and delicate straps." },
+  { id: "w2", name: "Structured Wool Blazer", category: "women", price: 48000, image: "https://images.unsplash.com/photo-1584273143981-41c073dfe8f8?q=80&w=800&auto=format&fit=crop", description: "Tailored double-breasted blazer cut from Italian virgin wool with horn buttons." },
+  { id: "w3", name: "Pleated Midi Skirt", category: "women", price: 26500, image: "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?q=80&w=800&auto=format&fit=crop", description: "High-waisted accordion pleated midi skirt in metallic champagne luster fabric." },
+  { id: "m1", name: "Italian Wool Tailored Suit", category: "men", price: 98000, image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?q=80&w=800&auto=format&fit=crop", description: "Bespoke-feel two-piece suit tailored from Super 130s Italian wool." },
+  { id: "m2", name: "Cashmere Turtleneck Sweater", category: "men", price: 36000, image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=800&auto=format&fit=crop", description: "Ultra-fine Grade-A Mongolian cashmere rollneck sweater in relaxed fit." },
+  { id: "a1", name: "Signature Leather Tote", category: "accessories", price: 54000, image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=800&auto=format&fit=crop", description: "Handcrafted full-grain Italian leather tote with gold-tone hardware." },
+  { id: "a4", name: "Baroque Freshwater Pearl Torque", category: "accessories", price: 28500, image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=800&auto=format&fit=crop", description: "Organic, uncultured baroque pearl anchored on an 18k gold-vermeil collar." }
+];
+
 const Shop = ({ onAddToCart }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentCategory = searchParams.get('cat') || 'all';
   const [searchQuery, setSearchQuery] = useState('');
   
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(fallbackCatalog);
   const [loading, setLoading] = useState(true);
 
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [completeLookId, setCompleteLookId] = useState(null);
   const [tryOnProduct, setTryOnProduct] = useState(null);
 
-  // Fetch products from Live Database API
+  // Fetch products from Live Database API with Fallback
   useEffect(() => {
     setLoading(true);
     fetch(`${BACKEND_URL}/api/products`)
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           setProducts(data);
         }
         setLoading(false);
       })
       .catch(err => {
-        console.error("Failed to fetch products:", err);
+        console.error("Failed to fetch products, using fallback catalog:", err);
         setLoading(false);
       });
   }, []);
 
   const filteredProducts = useMemo(() => {
     return products.filter(item => {
-      const matchCat = currentCategory === 'all' || (item.category && item.category.toLowerCase() === currentCategory.toLowerCase());
+      const itemCat = (item.category || '').toLowerCase().trim();
+      const targetCat = currentCategory.toLowerCase().trim();
+
+      const matchCat = targetCat === 'all' || itemCat === targetCat || 
+                       (targetCat === 'women' && itemCat.includes('women')) ||
+                       (targetCat === 'men' && itemCat.includes('men')) ||
+                       (targetCat === 'accessories' && itemCat.includes('accessor'));
+
       const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchCat && matchSearch;
@@ -59,7 +77,7 @@ const Shop = ({ onAddToCart }) => {
             {currentCategory === 'all' ? 'Complete Collection' : `${currentCategory.toUpperCase()}'S ATELIER`}
           </h1>
           <p className="text-xs sm:text-sm text-stone-500 font-sans">
-            {loading ? 'Curating bespoke pieces...' : `Showing ${filteredProducts.length} bespoke pieces`}
+            Showing {filteredProducts.length} bespoke pieces
           </p>
         </div>
 
@@ -93,12 +111,8 @@ const Shop = ({ onAddToCart }) => {
         />
       </div>
 
-      {/* Loading or Product Grid */}
-      {loading ? (
-        <div className="py-20 text-center text-stone-500 text-xs font-mono uppercase tracking-widest">
-          Loading Atelier Collection...
-        </div>
-      ) : filteredProducts.length === 0 ? (
+      {/* Product Grid */}
+      {filteredProducts.length === 0 ? (
         <div className="py-20 text-center text-stone-500 text-xs font-sans">
           No bespoke garments found matching your criteria.
         </div>
