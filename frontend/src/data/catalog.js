@@ -60,8 +60,7 @@ export const catalog60 = [
   { id: 57, name: "Handcrafted Leather Watch Folio", category: "accessories", price: 24000, image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=800&auto=format&fit=crop", description: "Three-watch travel roll lined in soft micro-suede.", badge: "Horology", color: "Cognac", trendScore: 89 },
   { id: 58, name: "Hammered Silver Choker Necklace", category: "accessories", price: 36000, image: "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=800&auto=format&fit=crop", description: "925 sterling silver malleable neck collar with artisanal texture.", badge: "Artisan Gem", color: "White", trendScore: 88 },
   { id: 59, name: "Silk Velvet Pouch Evening Bag", category: "accessories", price: 22000, image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=800&auto=format&fit=crop", description: "Drawstring pouch in emerald velvet with gold tassel details.", badge: "Evening Gala", color: "Emerald", trendScore: 86 },
-  { id: 60, name: "Ceylon Padparadscha Sapphire Brooch", category: "accessories", price: 120000, image: "https://images.unsplash.com/photo-1514327605112-b887c0e61c0a?q=80&w=800&auto=format&fit=crop", description: "Bespoke lotus-inspired brooch featuring unheated sunrise sapphire.", badge: "Haute Masterpiece", color: "Gold", trendScore: 99 }];
-  export const normalizedCatalog = catalog60;
+  { id: 60, name: "Ceylon Padparadscha Sapphire Brooch", category: "accessories", price: 120000, image: "https://images.unsplash.com/photo-1514327605112-b887c0e61c0a?q=80&w=800&auto=format&fit=crop", description: "Bespoke lotus-inspired brooch featuring unheated sunrise sapphire.", badge: "Haute Masterpiece", color: "Gold", trendScore: 99 }  export const normalizedCatalog = catalog60;
 
 export const catalogStats = {
   total: 60,
