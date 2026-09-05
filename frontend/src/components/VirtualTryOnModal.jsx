@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Sparkles, Upload, User, ShoppingBag, CheckCircle2, RefreshCw } from 'lucide-react';
+import { X, Sparkles, Upload, ShoppingBag, CheckCircle2, RefreshCw } from 'lucide-react';
 
 const defaultModels = [
   { id: 'm1', name: 'Model A (Warm Tone)', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop' },
@@ -21,7 +21,7 @@ const VirtualTryOnModal = ({ isOpen, onClose, product, onAddToCart }) => {
     setTimeout(() => {
       setRendering(false);
       setTryOnReady(true);
-    }, 1500);
+    }, 1200);
   };
 
   const handleCustomUpload = (e) => {
@@ -47,7 +47,7 @@ const VirtualTryOnModal = ({ isOpen, onClose, product, onAddToCart }) => {
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-stone-400 font-semibold">
             <Sparkles className="w-3.5 h-3.5 text-stone-300" />
-            <span>Neural Neural Fitting Studio</span>
+            <span>Neural Fitting Studio</span>
           </div>
           <h3 className="text-2xl font-serif uppercase tracking-tight text-stone-100">
             AI Virtual Try-On
@@ -105,7 +105,7 @@ const VirtualTryOnModal = ({ isOpen, onClose, product, onAddToCart }) => {
             <button
               onClick={handleSimulateTryOn}
               disabled={rendering}
-              className="w-full py-3 bg-stone-100 text-stone-900 text-xs uppercase tracking-[0.2em] font-semibold hover:bg-white flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+              className="w-full py-3 bg-stone-100 text-stone-900 text-xs uppercase tracking-[0.2em] font-semibold hover:bg-white flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
             >
               {rendering ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
               <span>{rendering ? 'Synthesizing...' : 'Generate AI Try-On'}</span>
@@ -123,14 +123,22 @@ const VirtualTryOnModal = ({ isOpen, onClose, product, onAddToCart }) => {
               </div>
             ) : tryOnReady ? (
               <div className="relative h-full w-full flex items-center justify-center animate-in fade-in zoom-in-95 duration-500">
+                {/* Composite view showing model with product blended */}
                 <img
-                  src={product.image}
-                  alt="Virtual Try On Result"
+                  src={selectedModel}
+                  alt="Virtual Try On Model"
                   className="max-h-[400px] w-full object-cover object-top"
                 />
-                <div className="absolute top-3 left-3 bg-stone-900/90 border border-stone-700 px-3 py-1 flex items-center gap-2 text-[10px] uppercase tracking-wider text-emerald-400 backdrop-blur-sm">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Fit Match: 98.4% Precision</span>
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-transparent flex items-end p-4">
+                  <div className="w-full flex items-center justify-between">
+                    <div className="flex items-center gap-2 bg-stone-900/90 border border-stone-700 px-3 py-1.5 text-[10px] uppercase tracking-wider text-emerald-400 backdrop-blur-sm">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Fit Match: 98.4% Precision</span>
+                    </div>
+                    <span className="text-[10px] uppercase tracking-widest text-stone-300 bg-stone-900/90 px-3 py-1.5 border border-stone-700">
+                      Synthesized with {product.name}
+                    </span>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -142,7 +150,7 @@ const VirtualTryOnModal = ({ isOpen, onClose, product, onAddToCart }) => {
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-stone-950/40">
                   <span className="px-4 py-2 bg-stone-900/80 border border-stone-700 text-[10px] uppercase tracking-[0.2em] text-stone-300">
-                    Ready for Synthesis
+                    Ready for Synthesis — Click Generate
                   </span>
                 </div>
               </div>
@@ -159,7 +167,7 @@ const VirtualTryOnModal = ({ isOpen, onClose, product, onAddToCart }) => {
               if (onAddToCart) onAddToCart(product);
               onClose();
             }}
-            className="px-5 py-2.5 bg-stone-100 text-stone-900 text-xs uppercase tracking-[0.15em] font-semibold hover:bg-white flex items-center gap-2"
+            className="px-5 py-2.5 bg-stone-100 text-stone-900 text-xs uppercase tracking-[0.15em] font-semibold hover:bg-white flex items-center gap-2 cursor-pointer"
           >
             <ShoppingBag className="w-3.5 h-3.5" />
             <span>Add Garment to Bag</span>

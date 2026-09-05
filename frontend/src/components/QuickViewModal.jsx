@@ -3,19 +3,31 @@ import { X, Sparkles, ShoppingBag, Shield, Check, Ruler } from 'lucide-react';
 
 const QuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
   const [selectedSize, setSelectedSize] = useState('M');
+  const [selectedColor, setSelectedColor] = useState(product?.color || 'Signature');
   const [added, setAdded] = useState(false);
 
   if (!isOpen || !product) return null;
 
   const handleAdd = () => {
     if (onAddToCart) {
-      onAddToCart({ ...product, selectedSize });
+      onAddToCart({ 
+        ...product, 
+        selectedSize, 
+        selectedColor 
+      });
     }
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   };
 
   const sizes = ['XS', 'S', 'M', 'L', 'XL'];
+  
+  // Dynamic color variations based on product attributes or luxury defaults
+  const colors = [
+    { name: product?.color || 'Signature', hex: '#d4d4d8' },
+    { name: 'Midnight Black', hex: '#1c1917' },
+    { name: 'Champagne Beige', hex: '#f5f5f4' }
+  ];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-charcoal/80 backdrop-blur-sm animate-fade-in">
@@ -43,7 +55,7 @@ const QuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
         </div>
 
         {/* Product Details & Purchase Actions */}
-        <div className="p-6 md:p-8 flex flex-col justify-between space-y-6">
+        <div className="p-6 md:p-8 flex flex-col justify-between space-y-5">
           <div className="space-y-3">
             <div className="flex items-center justify-between text-[10px] uppercase tracking-luxury text-brand-champagne font-semibold">
               <span>{product.category} | {product.type || 'Couture'}</span>
@@ -75,11 +87,40 @@ const QuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
               </p>
             </div>
 
-            {/* Size Selector */}
-            <div className="pt-2">
-              <label className="block text-[10px] uppercase tracking-luxury text-brand-muted mb-2 font-semibold">
-                Select Tailored Size
+            {/* Color Selector */}
+            <div className="pt-1">
+              <label className="block text-[10px] uppercase tracking-luxury text-brand-muted mb-1.5 font-semibold">
+                Select Color: <span className="text-brand-dark font-normal">{selectedColor}</span>
               </label>
+              <div className="flex gap-2">
+                {colors.map((col) => (
+                  <button
+                    key={col.name}
+                    onClick={() => setSelectedColor(col.name)}
+                    className={`px-3 py-1.5 text-[11px] uppercase tracking-wider border transition-all flex items-center gap-1.5 ${
+                      selectedColor === col.name
+                        ? 'border-brand-dark bg-brand-dark text-brand-cream font-semibold'
+                        : 'border-brand-sand text-brand-muted hover:border-brand-dark bg-white/50'
+                    }`}
+                  >
+                    <span 
+                      className="w-2.5 h-2.5 rounded-full border border-brand-sand/60 inline-block" 
+                      style={{ backgroundColor: col.hex }} 
+                    />
+                    <span>{col.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Size Selector */}
+            <div className="pt-1">
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="text-[10px] uppercase tracking-luxury text-brand-muted font-semibold">
+                  Select Tailored Size
+                </label>
+                <span className="text-[10px] text-brand-champagne underline cursor-pointer tracking-wider">Size Guide</span>
+              </div>
               <div className="flex gap-2">
                 {sizes.map((sz) => (
                   <button
@@ -99,7 +140,7 @@ const QuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
           </div>
 
           {/* Add to Cart CTA */}
-          <div className="pt-4 border-t border-brand-sand">
+          <div className="pt-3 border-t border-brand-sand">
             <button
               onClick={handleAdd}
               disabled={added}
